@@ -23,6 +23,13 @@ public class HomeController {
     @Autowired
     ILoginService loginService;
 
+
+    @RequestMapping("/testpage")
+    public String testPage(Model model){
+        return "testpage";
+    }
+
+
     @RequestMapping({"/", "/login"})
     public  String showLogin(Model model, @RequestParam(value = "error", defaultValue = "") String error){
 
@@ -48,14 +55,21 @@ public class HomeController {
         }
     }
 
+    @RequestMapping("/files")
+    public String showFiles(Model model){ return "files"; }
 
     @RequestMapping("/home")
     public String showPage(Model model){
         return "home";
     }
 
-    @RequestMapping("/testpage")
-    public String testPage(Model model){
-        return "testpage";
-    }
+    @RequestMapping("/classroom")
+    public String getClassroom(Model model){ return "classroom"; }
+
+    @RequestMapping("/assignment")
+    public String getAssignment(Model model){ return "assignment"; }
+
+    @RequestMapping("/announcement")
+    public String getAnnouncement(Model model){ return "announcement"; }
+
 }

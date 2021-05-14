@@ -1,17 +1,14 @@
 <%--
   Created by IntelliJ IDEA.
   User: vishwajit_gaikwad
-  Date: 5/5/21
-  Time: 9:32 PM
+  Date: 14/5/21
+  Time: 8:47 PM
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home | V - Class</title>
+    <title>Classroom | V - Class</title>
     <style>
         body {
             display: -ms-flexbox;
@@ -281,6 +278,7 @@
 
 
     </style>
+
 </head>
 <body>
 <header>
@@ -308,20 +306,7 @@
 </header>
 
 <main id="main">
-    <table id = "timetable">
-        <th>Time</th>
-        <th>Mon</th>
-        <th>Tue</th>
-        <th>Wed</th>
-        <th>Thu</th>
-        <th>Fri</th>
-    </table>
-
-    <div id="newcontent">
-        <table class="news">
-            <th>What's New ?</th>
-        </table>
-    </div>
+    <p>Hey man this is Classroom page!</p>
 </main>
 
 <footer class="no-margin-top">
