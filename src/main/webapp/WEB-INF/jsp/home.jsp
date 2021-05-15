@@ -236,6 +236,7 @@
             margin-top: 0px;
             /* margin-left: 40px; */
             font-size: 16px;
+            height: 10px;
         }
 
         td, th {
@@ -315,6 +316,12 @@
         <th>Wed</th>
         <th>Thu</th>
         <th>Fri</th>
+        <tr>
+            <td>asd</td>
+        </tr>
+        <tr>
+            <td>asd</td>
+        </tr>
     </table>
 
     <div id="newcontent">
