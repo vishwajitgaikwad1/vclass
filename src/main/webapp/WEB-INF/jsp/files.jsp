@@ -57,6 +57,21 @@
     header nav {
         cursor: default;
     }
+
+    header li a,
+    header li a:link,
+    header li a:active{
+        font-size:14px;
+        margin-right:5px;
+        color:#ccc !important;
+        padding: 0 8px;
+    }
+
+    header li a:hover {
+        background-color: transparent;
+        text-decoration: underline;
+    }
+
     header nav a,
     header nav a:link,
     header nav a:active {
@@ -183,6 +198,7 @@
         width: 100%;
         max-width: 980px;
         margin: 0 auto;
+        padding: auto;
         overflow: hidden;
     }
 
@@ -194,7 +210,6 @@
         padding:0 20px;
         position:absolute;
         bottom:0px;
-
     }
 
     footer{
@@ -202,6 +217,7 @@
         background-color: #333;
         padding: 0;
         padding: 0 8px;
+        padding-top:8px;
         text-transform: uppercase;
         font-size: 14px;
         text-align: center;
@@ -221,63 +237,6 @@
     footer a, footer a:link, footer a:active {
         color: #ccc;
     }
-
-
-    /* ========================================================
-                    TIMETABLE CSS
-=========================================================== */
-    table{
-        font-family: arial, sans-serif;
-        border-collapse: collapse;
-        border: 1px solid black;
-        /* margin: auto; */
-        margin-top: 0px;
-        /* margin-left: 40px; */
-        font-size: 16px;
-    }
-
-    td, th {
-        border: 1px solid #dddddd;
-        text-align: left;
-        padding: 8px;
-    }
-
-    tr:nth-child(even) {
-        /* background-color: #dddddd; */
-        color: white;
-        background-color: #333;
-    }
-
-    #timetable{
-        width: 70%;
-    }
-
-    /* ========================================================
-                            NEWS CSS
-    =========================================================== */
-
-    #newcontent{
-        height: 300px;
-        width: 310px;
-        background-color: #333;
-        margin-left: auto;
-        margin-right: auto;
-        /* margin-top: 30px;
-        margin-right: 30px; */
-        vertical-align: top;
-        overflow: auto;
-    }
-
-    .news {
-        margin: 0;
-        width: 100%;
-        color: white;
-    }
-    .news td{
-        background-color: #333;
-    }
-
-
 </style>
 
 <body>
@@ -285,10 +244,10 @@
     <div class="container">
         <nav>
             <ul class="list-divider-pipe">
-                <li class="active">
+                <li>
                     <a href="home">Home</a>
                 </li>
-                <li>
+                <li class="active">
                     <a href="files">Files</a>
                 </li>
                 <li>
@@ -300,10 +259,20 @@
                 <li>
                     <a href="announcement">Announcement</a>
                 </li>
+                <li>
+                    <a target="_blank" href="https://www.google.com">Profile</a>
+                </li>
             </ul>
         </nav>
     </div>
+    <li>
+        <a href="logout">LOGOUT</a>
+    </li>
 </header>
+
+<main id="main">
+    <p>Hey man this is announcment page!</p>
+</main>
 
 <footer class="no-margin-top">
     <div class="container">

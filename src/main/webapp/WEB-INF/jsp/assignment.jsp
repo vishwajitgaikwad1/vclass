@@ -56,6 +56,21 @@
         header nav {
             cursor: default;
         }
+
+        header li a,
+        header li a:link,
+        header li a:active{
+            font-size:14px;
+            margin-right:5px;
+            color:#ccc !important;
+            padding: 0 8px;
+        }
+
+        header li a:hover {
+            background-color: transparent;
+            text-decoration: underline;
+        }
+
         header nav a,
         header nav a:link,
         header nav a:active {
@@ -182,6 +197,7 @@
             width: 100%;
             max-width: 980px;
             margin: 0 auto;
+            padding: auto;
             overflow: hidden;
         }
 
@@ -193,7 +209,6 @@
             padding:0 20px;
             position:absolute;
             bottom:0px;
-
         }
 
         footer{
@@ -201,6 +216,7 @@
             background-color: #333;
             padding: 0;
             padding: 0 8px;
+            padding-top:8px;
             text-transform: uppercase;
             font-size: 14px;
             text-align: center;
@@ -233,11 +249,22 @@
             margin-top: 0px;
             /* margin-left: 40px; */
             font-size: 16px;
+            height: 10px;
+        }
+
+        .selectSemester td{
+            width: auto;
+            border:none;
+        }
+        .selectSemester{
+            border:none;
+            border-bottom: solid;
         }
 
         td, th {
             border: 1px solid #dddddd;
             text-align: left;
+            width: 40px;
             padding: 8px;
         }
 
@@ -248,7 +275,17 @@
         }
 
         #timetable{
+            width: 100%;
+            margin-top: 20px;
+        }
+        #left{
             width: 70%;
+            margin-right:auto;
+            margin-left: auto;
+        }
+
+        .hide{
+            display:none;
         }
 
         /* ========================================================
@@ -285,7 +322,7 @@
     <div class="container">
         <nav>
             <ul class="list-divider-pipe">
-                <li class="active">
+                <li>
                     <a href="home">Home</a>
                 </li>
                 <li>
@@ -294,15 +331,21 @@
                 <li>
                     <a href="classroom">Classroom</a>
                 </li>
-                <li>
+                <li class="active">
                     <a href="assignment">Assignment</a>
                 </li>
                 <li>
                     <a href="announcement">Announcement</a>
                 </li>
+                <li>
+                    <a target="_blank" href="https://www.google.com">Profile</a>
+                </li>
             </ul>
         </nav>
     </div>
+    <li>
+        <a href="logout">LOGOUT</a>
+    </li>
 </header>
 
 <main id="main">

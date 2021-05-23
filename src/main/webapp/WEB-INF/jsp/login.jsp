@@ -45,12 +45,15 @@
 </head>
 <body>
 <div class="login-form">
-    <h1>Login Form</h1>
+    <br>
+    <h1>V - Class<hr></h1>
     <form:form action="authLogin" modelAttribute="loginVO">
        <form:input path="loginId" placeholder="Login ID"/>
        <form:password path="password" placeholder="Password" />
         <input type="submit" value="Submit" />
     </form:form>
+    <br>
+    <hr>
 
     <p style="text-align: center; color: red;" > ${ERROR_MESSAGE} </p>
 </div>

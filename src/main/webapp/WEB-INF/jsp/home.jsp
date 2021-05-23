@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
   User: vishwajit_gaikwad
@@ -12,6 +13,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home | V - Class</title>
+
     <style>
         body {
             display: -ms-flexbox;
@@ -59,6 +61,21 @@
         header nav {
             cursor: default;
         }
+
+        header li a,
+        header li a:link,
+        header li a:active{
+            font-size:14px;
+            margin-right:5px;
+            color:#ccc !important;
+            padding: 0 8px;
+        }
+
+        header li a:hover {
+            background-color: transparent;
+            text-decoration: underline;
+        }
+
         header nav a,
         header nav a:link,
         header nav a:active {
@@ -185,6 +202,7 @@
             width: 100%;
             max-width: 980px;
             margin: 0 auto;
+            padding: auto;
             overflow: hidden;
         }
 
@@ -196,7 +214,6 @@
             padding:0 20px;
             position:absolute;
             bottom:0px;
-
         }
 
         footer{
@@ -204,6 +221,7 @@
             background-color: #333;
             padding: 0;
             padding: 0 8px;
+            padding-top:8px;
             text-transform: uppercase;
             font-size: 14px;
             text-align: center;
@@ -239,9 +257,19 @@
             height: 10px;
         }
 
+        .selectSemester td{
+            width: auto;
+            border:none;
+        }
+        .selectSemester{
+            border:none;
+            border-bottom: solid;
+        }
+
         td, th {
             border: 1px solid #dddddd;
             text-align: left;
+            width: 40px;
             padding: 8px;
         }
 
@@ -252,7 +280,17 @@
         }
 
         #timetable{
+            width: 100%;
+            margin-top: 20px;
+        }
+        #left{
             width: 70%;
+            margin-right:auto;
+            margin-left: auto;
+        }
+
+        .hide{
+            display:none;
         }
 
         /* ========================================================
@@ -278,12 +316,14 @@
         }
         .news td{
             background-color: #333;
+            color: white;
         }
+
 
 
     </style>
 </head>
-<body>
+<body onload="onloadSem()">
 <header>
     <div class="container">
         <nav>
@@ -303,31 +343,105 @@
                 <li>
                     <a href="announcement">Announcement</a>
                 </li>
+                <li>
+                    <a target="_blank" href="https://www.google.com">Profile</a>
+                </li>
             </ul>
         </nav>
     </div>
+    <li>
+        <a href="logout">LOGOUT</a>
+    </li>
 </header>
 
 <main id="main">
-    <table id = "timetable">
-        <th>Time</th>
-        <th>Mon</th>
-        <th>Tue</th>
-        <th>Wed</th>
-        <th>Thu</th>
-        <th>Fri</th>
-        <tr>
-            <td>asd</td>
-        </tr>
-        <tr>
-            <td>asd</td>
-        </tr>
-    </table>
 
-    <div id="newcontent">
-        <table class="news">
-            <th>What's New ?</th>
+    <div id="left">
+        <p>Welcome ${FIRSTNAME}!</p>
+        <hr>
+
+        <c:choose>
+            <c:when test="${ROLE_MODEL.equals(\"STUDENT\")}">
+            <table class="selectSemester hide">
+                <tr>
+                    <td> <label for="cars">Select Course & Sem:</label></td>
+                    <td><select name="cars" id="cars">
+                        <option value="volvo">Volvo</option>
+                        <option value="saab">Saab</option>
+                        <option value="mercedes">Mercedes</option>
+                        <option value="audi">Audi</option>
+                    </select> </td>
+                </tr>
+            </table>
+            </c:when>
+
+
+            <c:when test="${ROLE_MODEL.equals(\"FACULTY\")}">
+                <table class="selectSemester">
+                    <tr>
+                        <td> <label for="cars">Select Course & Sem:</label></td>
+                        <td><form name="f1" method="GET" action="#">
+                            <select name="course">
+                                <c:forEach items="${FACULTY_MATRIX_MODEL}" var="fmm">
+                                    <option value="${fmm.COURSE_MSTR_SEQ}">${fmm.COURSE_NAME}</option>
+                                </c:forEach>
+                            </select>
+                            <select name="sem" id="sem">
+                                <c:forEach items="${FACULTY_MATRIX_MODEL}" var="fmm">
+                                    <option value="${fmm.SEM}">${fmm.SEM}</option>
+                                </c:forEach>
+                            </select>
+                            <input id="submit" type="submit" value="GO"/>
+                        </form>
+                    </tr>
+                </table>
+            </c:when>
+        </c:choose>
+        <script>
+            function onloadSem(){
+                const params = new URLSearchParams(window.location.search)
+                var val = params.get('sem');
+                if(val!=null){ document.getElementById("sem").value = val;}
+            }
+
+
+        </script>
+
+        <table id = "timetable">
+            <th>Time</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+            <c:forEach items="${TIMETABLE_MODEL}" var="t">
+                <tr>
+                    <td>${t.TIME}</td>
+                    <td>${t.MON}</td>
+                    <td>${t.TUE}</td>
+                    <td>${t.WED}</td>
+                    <td>${t.THU}</td>
+                    <td>${t.FRI}</td>
+                    <td>${t.SAT}</td>
+                </tr>
+            </c:forEach>
         </table>
+    </div>
+
+    <div id="right">
+        <div id="newcontent">
+            <table class="news">
+                <th>What's New ?</th>
+                <c:forEach items="${NEWS_MODEL}" var="n">
+                    <tr>
+                        <td>
+                            <a style="color: white;" href="${n.newsUrl}" target="_blank">${n.newsLabel}</a>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </table>
+        </div>
     </div>
 </main>
 
