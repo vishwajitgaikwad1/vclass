@@ -1,18 +1,24 @@
 package com.vjti.controller;
 
+import com.vjti.common.CommonUtil;
+import com.vjti.common.CommonWebUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.model.LoginVO;
+import com.vjti.model.TimetableVO;
 import com.vjti.service.ILoginService;
+import com.vjti.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +30,9 @@ public class HomeController {
     @Autowired
     ILoginService loginService;
 
+    @Autowired
+    IUserService userService;
+
 
     @RequestMapping("/testpage")
     public String testPage(Model model){
@@ -33,65 +42,62 @@ public class HomeController {
 
     @RequestMapping({"/", "/login"})
     public  String showLogin(Model model,
-                             @RequestParam(value = "error", defaultValue = "") String error,
-                             @CookieValue(name=ApplicationConstants.COOKIE_USER, defaultValue = "") String userCookie){
-
+                             @RequestParam(value = ApplicationConstants.ERRORPARAM, defaultValue = "") String error,
+                             @CookieValue(name=ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie){
         if(!error.isEmpty()){
             model.addAttribute("ERROR_MESSAGE", "Invalid Credentials!");
         }
-
-        if(userCookie.length()>0){
-            return "redirect:/home";
+        else{
+            if(loginCookie.length()>0){
+                return "redirect:/authLogin";
+            }
         }
-
         LoginVO loginVO = new LoginVO();
         model.addAttribute("loginVO",loginVO);
         return "login";
     }
 
-
-    @RequestMapping("/authLogin")
-    public String authLogin(@ModelAttribute("loginVO") LoginVO loginVO, Model model,HttpServletResponse httpServletResponse){
-
-        Map<String, String> response = loginService.findByLoginIdAndPassword(loginVO.getLoginId(), loginVO.getPassword());
-
-        if(response !=null &&  response.get(ApplicationConstants.RESPONSE).toString().equals(ApplicationConstants.SUCCESS)){
-
-            //Cookie NOTE: COOKIES DOES NOT ACCEPT ";" IN THE VALUE
-            String userCookieString = ApplicationConstants.LOGGED_IN + ":" + ApplicationConstants.BOOLEAN_TRUE + "\t"
-                                        + ApplicationConstants.LOGIN_ID + ":" + response.get(ApplicationConstants.LOGIN_ID) + "\t"
-                                        + ApplicationConstants.USER_MSTR_SEQ + ":" + response.get(ApplicationConstants.USER_MSTR_SEQ);
-
-            Cookie cookie = new Cookie(ApplicationConstants.COOKIE_USER, userCookieString);
-            cookie.setMaxAge(7 * 24 * 24); //expires in 7 days
-            cookie.setSecure(true);
+    @RequestMapping("/logout")
+    public String handleLogout(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
+        HttpSession session = httpServletRequest.getSession(false);
+        if (httpServletRequest.isRequestedSessionIdValid() && session != null) {
+            session.invalidate();
+        }
+        Cookie[] cookies = httpServletRequest.getCookies();
+        for (Cookie cookie : cookies) {
+            cookie.setMaxAge(0);
+            cookie.setValue(null);
             cookie.setPath("/");
             httpServletResponse.addCookie(cookie);
-            System.out.println(cookie.getValue());
-
-            model.addAttribute(ApplicationConstants.RESPONSE, response);
-            return "redirect:/home";
         }
-        else{
-            return "redirect:/login?error=true";
-        }
+        return "redirect:/login";
     }
 
-    @RequestMapping("/files")
-    public String showFiles(Model model){ return "files"; }
 
-    @RequestMapping("/home")
-    public String showPage(Model model){
-        return "home";
+    @RequestMapping("/authLogin")
+    public String authLogin(@ModelAttribute("loginVO") LoginVO loginVO, HttpServletResponse httpServletResponse,
+                            @CookieValue(name = ApplicationConstants.COOKIE_LOGIN , defaultValue = "")String loginCookie){
+
+        String role = "";
+        if(loginCookie.equals("")){
+            Map<String, String> loginResponse = loginService.findByLoginIdAndPassword(loginVO.getLoginId(), loginVO.getPassword());
+            if(loginResponse!=null & loginResponse.get(ApplicationConstants.RESPONSE).equals(ApplicationConstants.SUCCESS)){
+                CommonWebUtil.createCookie(ApplicationConstants.COOKIE_LOGIN, loginResponse.get(ApplicationConstants.COOKIE_LOGIN), httpServletResponse);
+                role = userService.fetchUserRoleBySeq(Integer.valueOf(loginResponse.get(ApplicationConstants.USER_ROLE_MSTR_SEQ)));
+            }
+        }else {
+            Map<String, String> loginCookieMap = CommonWebUtil.fetchCookie(loginCookie);
+            role = userService.fetchUserRoleBySeq(Integer.valueOf(loginCookieMap.get(ApplicationConstants.USER_ROLE_MSTR_SEQ)));
+        }
+
+        if(role.equals(ApplicationConstants.STUDENT)){
+            return "redirect:/student/";
+        }
+        else if(role.equals(ApplicationConstants.FACULTY)){
+            return "redirect:/faculty/";
+        }
+     return "redirect:/login?error=true";
     }
 
-    @RequestMapping("/classroom")
-    public String getClassroom(Model model){ return "classroom"; }
-
-    @RequestMapping("/assignment")
-    public String getAssignment(Model model){ return "assignment"; }
-
-    @RequestMapping("/announcement")
-    public String getAnnouncement(Model model){ return "announcement"; }
 
 }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface LoginRepository extends JpaRepository<LoginVO,Integer> {
 
     @Query("SELECT lm FROM LoginVO lm WHERE lm.loginId = :loginId and lm.password = :password")
-    LoginVO findUserByLoginIdAndPassword(
+    LoginVO findLoginByLoginIdAndPassword(
             @Param("loginId") String loginId,
             @Param("password") String password);
 

@@ -1,5 +1,6 @@
 package com.vjti.model;
 
+import com.vjti.constant.ApplicationConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,42 +18,50 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "login_mstr")
+@Table(name = "user_mstr")
 public class LoginVO {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "LOGIN_MSTR_SEQ", unique = true, nullable = false)
-    Integer loginMstrSeq;
+    @Column(name = "USER_MSTR_SEQ", unique = true, nullable = false)
+    Integer userMstrSeq;
+
+    @Column(name = "EMAIL")
+    String email;
+
+    @Column(name = "FIRSTNAME")
+    String firstname;
+
+    @Column(name = "LASTNAME")
+    String lastname;
 
     @Column(name = "LOGIN_ID")
     String loginId;
 
-    @Column(name = "USER_MSTR_SEQ")
-    Integer userMstrSeq;
-    @Column(name = "EMAIL")
-    String email;
-    @Column(name = "PASSWORD")
+    @Column(name = "PASS")
     String password;
 
-//    public LoginVO(Integer login_mstr_seq, String login_id, Integer user_mstr_seq, String email, String password) {
-//        this.loginMstrSeq = login_mstr_seq;
-//        this.loginId = login_id;
-//        this.userMstrSeq = user_mstr_seq;
-//        this.email = email;
-//        this.password = password;
-//    }
-
+    @Column(name = "USER_ROLE_MSTR_SEQ")
+    Integer userRoleMstrSeq;
 
     @Override
     public String toString() {
         return "LoginVO{" +
-                "loginMstrSeq=" + loginMstrSeq +
-                ", loginId='" + loginId + '\'' +
-                ", userMstrSeq=" + userMstrSeq +
+                "userMstrSeq=" + userMstrSeq +
                 ", email='" + email + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", loginId='" + loginId + '\'' +
                 ", password='" + password + '\'' +
+                ", userRoleMstrSeq=" + userRoleMstrSeq +
                 '}';
+    }
+
+    public String toCookieString(){
+        String cookieString = ApplicationConstants.LOGIN_ID + ":" + loginId + "\t"
+                + ApplicationConstants.USER_MSTR_SEQ + ":" + userMstrSeq + "\t"
+                + ApplicationConstants.USER_ROLE_MSTR_SEQ + ":" + userRoleMstrSeq;
+        return cookieString;
     }
 
 }
