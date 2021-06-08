@@ -16,4 +16,6 @@ public interface IFacultyService {
     List<Map<String, Object>> fetchFacultyMatrix(Integer facultyMstrSeq);
 
     List<Map<String, Object>> fetchDistinctFacultyMatrix(Integer facultyMstrSeq);
+
+    List<Map<String, Object>> fetchDistinctCourseFacultyMatrix(Integer facultyMstrSeq);
 }

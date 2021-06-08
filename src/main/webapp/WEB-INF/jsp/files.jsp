@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
   User: vishwajit_gaikwad
@@ -8,7 +9,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Files | V - Class</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 <style>
     body {
@@ -179,7 +186,7 @@
 
     a:hover {
         color: #fff;
-        background-color: #000000;
+        /*background-color: #000000;*/
     }
 
     a:hover code {
@@ -194,13 +201,27 @@
         margin-left: -2px;
     }
 
-    .container {
-        width: 100%;
-        max-width: 980px;
-        margin: 0 auto;
-        padding: auto;
-        overflow: hidden;
+    /*.container a:hover code {*/
+        /*background-color: transparent;*/
+        /*color: #fff;*/
+    /*}*/
+    /*.container {*/
+        /*width: 100%;*/
+        /*max-width: 980px;*/
+        /*margin: 0 auto;*/
+        /*padding: auto;*/
+        /*overflow: hidden;*/
+    /*}*/
+
+    .panel-title a:hover{
+        color: black;
+        font-size: 15px;
     }
+
+    .panel-title{
+        font-size: 14px;
+    }
+
 
     /* ========================================================
                             FOOTER CSS
@@ -270,8 +291,146 @@
     </li>
 </header>
 
-<main id="main">
-    <p>Hey man this is announcment page!</p>
+<main id="main" style="display:block;">
+
+
+    <div class="container">
+        <h2>Course Study Materials</h2>
+
+
+        <c:choose>
+            <c:when test="${ROLE_MODEL.equals(\"FACULTY\")}">
+                <table>
+                    <tr>
+                        <td>Select Course: </td>
+                        <td style="padding-left: 20px;">
+
+                            <form name="f1" method="GET" action="#">
+                                <select name="course" id="course">
+                                    <c:forEach items="${COURSE_MATRIX_MODEL}" var="cmm">
+                                        <option value="${cmm.COURSE_MSTR_SEQ}">${cmm.COURSE_NAME}</option>
+                                    </c:forEach>
+                                </select>
+
+                                <input id="submit" type="submit" value="GO"/>
+                            </form>
+
+                        </td>
+                    </tr>
+                </table>
+            </c:when>
+        </c:choose>
+        <hr>
+
+
+        <div class="panel-group">
+            <div class="panel panel-default">
+
+
+                <%--FOR EACH SEM--%>
+                <c:forEach items="${SEM_VO_LIST_MODEL}" var="semList">
+                        <div class="panel-heading" style="background-color: #333">
+                            <h4 class="panel-title">
+                                <a style="color: white" data-toggle="collapse" href="#collapse${semList.sem}">SEM ${semList.sem}</a>
+                            </h4>
+                        </div>
+
+
+                        <div id="collapse${semList.sem}" class="panel-collapse collapse">
+                                <%--FOR EACH SUBJECT--%>
+                                <c:forEach var="subjectList" items="${semList.filesVO}">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" href="#collapse-subject${subjectList.subjectMstrSeq}">${subjectList.subject}</a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse-subject${subjectList.subjectMstrSeq}" class="panel-collapse collapse">
+                                        <ul class="list-group">
+                                            <c:forEach var="filesList" items="${subjectList.files}">
+                                                <li class="list-group-item">
+                                                    <a style="color: black" target="_blank" data-toggle="collapse" href="file://${filesList.filePath}">${filesList.fileName}</a>
+                                                </li>
+
+                                            </c:forEach>
+                                        </ul>
+                                    </div>
+                                </c:forEach>
+                                <div class="panel-footer" style="background-color: black;"></div>
+                        </div>
+                        <div class="panel-group" style="background-color:transparent;"></div>
+                </c:forEach>
+            </div>
+
+        </div>
+
+        <c:choose>
+            <c:when test="${ROLE_MODEL.equals(\"FACULTY\")}">
+                <!-- Trigger the modal with a button -->
+                <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Upload File</button>
+
+                <!-- Modal -->
+                <div id="myModal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Upload File</h4>
+                            </div>
+                            <div class="modal-body">
+
+                                <form method="post" enctype="multipart/form-data" action="fileupload">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <%--SELECT COURSE--%>
+                                                    <select name="course" id="course">
+                                                        <c:forEach items="${COURSE_MATRIX_MODEL}" var="cmm">
+                                                            <option value="${cmm.COURSE_MSTR_SEQ}">${cmm.COURSE_NAME}</option>
+                                                        </c:forEach>
+                                                    </select>
+                                                <%--SELECT SEM--%>
+                                                    <select name="sem" id="sem">
+                                                        <c:forEach items="${FACULTY_MATRIX_MODEL}" var="fmm">
+                                                            <option value="${fmm.SEM}">SEM ${fmm.SEM}</option>
+                                                        </c:forEach>
+                                                    </select>
+                                                <%--SELECT SUBJECT--%>
+                                                    <select name="subject" id="subject">
+                                                        <c:forEach items="${FACULTY_MATRIX_MODEL}" var="fmm">
+                                                            <option value="${fmm.SUBJECT_MSTR_SEQ}">${fmm.SUBJECT_NAME}</option>
+                                                        </c:forEach>
+                                                    </select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <hr>
+
+                                    <table>
+                                        <tr>
+                                            <td><input type="file" name="file"></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: right;"><input value="Upload" class="btn btn-default" type="submit"></td>
+                                        </tr>
+                                    </table>
+                                </form>
+
+                            </div>
+                            <div class="modal-footer">
+                                <h4 style="font-size: 12px; float: left">Use only .pdf files</h4>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </c:when>
+        </c:choose>
+
+    </div>
+
 </main>
 
 <footer class="no-margin-top">

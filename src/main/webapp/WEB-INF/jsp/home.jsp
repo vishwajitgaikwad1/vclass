@@ -13,6 +13,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home | V - Class</title>
+    <%--<link rel="stylesheet" type="text/css" href="resources/css/homeone.css">--%>
 
     <style>
         body {
@@ -361,29 +362,14 @@
         <hr>
 
         <c:choose>
-            <c:when test="${ROLE_MODEL.equals(\"STUDENT\")}">
-            <table class="selectSemester hide">
-                <tr>
-                    <td> <label for="cars">Select Course & Sem:</label></td>
-                    <td><select name="cars" id="cars">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="mercedes">Mercedes</option>
-                        <option value="audi">Audi</option>
-                    </select> </td>
-                </tr>
-            </table>
-            </c:when>
-
-
             <c:when test="${ROLE_MODEL.equals(\"FACULTY\")}">
                 <table class="selectSemester">
                     <tr>
-                        <td> <label for="cars">Select Course & Sem:</label></td>
+                        <td> <label for="semandcourse">Select Course & Sem:</label></td>
                         <td><form name="f1" method="GET" action="#">
-                            <select name="course">
-                                <c:forEach items="${FACULTY_MATRIX_MODEL}" var="fmm">
-                                    <option value="${fmm.COURSE_MSTR_SEQ}">${fmm.COURSE_NAME}</option>
+                            <select name="course" id="semandcourse">
+                                <c:forEach items="${COURSE_MATRIX_MODEL}" var="cmm">
+                                    <option value="${cmm.COURSE_MSTR_SEQ}">${cmm.COURSE_NAME}</option>
                                 </c:forEach>
                             </select>
                             <select name="sem" id="sem">

@@ -3,9 +3,7 @@ package com.vjti.controller;
 import com.vjti.common.CommonUtil;
 import com.vjti.common.CommonWebUtil;
 import com.vjti.constant.ApplicationConstants;
-import com.vjti.model.FacultyVO;
-import com.vjti.model.NewsVO;
-import com.vjti.model.StudentVO;
+import com.vjti.model.*;
 import com.vjti.service.IFacultyService;
 import com.vjti.service.ILoginService;
 import com.vjti.service.IStudentService;
@@ -13,11 +11,19 @@ import com.vjti.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +70,8 @@ public class FacultyController {
                 //fetch list of courseMstrSeq and Sem
                 List<Map<String, Object>> facultyMatrixList = facultyService.fetchDistinctFacultyMatrix(facultyVO.getFacultyMstrSeq());
                 model.addAttribute(ApplicationConstants.FACULTY_MATRIX_MODEL, facultyMatrixList);
+                List<Map<String, Object>> facultyCourseMatrixList = facultyService.fetchDistinctCourseFacultyMatrix(facultyVO.getFacultyMstrSeq());
+                model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
 
 
                 //fetch time table based on that list.
@@ -80,6 +88,8 @@ public class FacultyController {
                 //fetch list of courseMstrSeq and Sem
                 List<Map<String, Object>> facultyMatrixList = facultyService.fetchDistinctFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
                 model.addAttribute(ApplicationConstants.FACULTY_MATRIX_MODEL, facultyMatrixList);
+                List<Map<String, Object>> facultyCourseMatrixList = facultyService.fetchDistinctCourseFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+                model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
 
                 if(courseMstrSeq == null && sem == null){
 
@@ -104,7 +114,95 @@ public class FacultyController {
     }
 
     @RequestMapping("/files")
-    public String showFiles(Model model){ return "files"; }
+    public String showFilesPage(Model model,
+                                @RequestParam(name = ApplicationConstants.COURSEPARAM,defaultValue = "") Integer courseMstrSeq,
+                                @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
+                                @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
+        model.addAttribute(ApplicationConstants.ROLE_MODEL, "FACULTY");
+        Map<String, String> userProfileCookieMap = null;
+
+        if(loginCookie.length()>0){
+
+            if(userProfileCookie.length()< 1){
+//                StudentVO studentVO = studentService.findStudentByUserMstrSeq(Integer.valueOf(loginCookieMap.get(ApplicationConstants.USER_MSTR_SEQ)));
+//                CommonWebUtil.createCookie(ApplicationConstants.COOKIE_USER_PROFILE, studentVO.getCookieString(),httpServletResponse);
+            }
+            else{
+                userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+
+
+                List<SemVO> semVOList = new ArrayList<>();
+                List<Map<String, Object>> facultyMatrixList = facultyService.fetchDistinctFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+                List<Map<String, Object>> facultyCourseMatrixList = facultyService.fetchDistinctCourseFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+
+                if (courseMstrSeq == null) {
+                    courseMstrSeq = Integer.valueOf(facultyCourseMatrixList.get(0).get("COURSE_MSTR_SEQ").toString());
+                }
+
+                Integer sem = userService.fetchSemByCourseMstrSeq(courseMstrSeq);
+
+                for (int i=1; i<=sem; i++) {
+                    List<Map<String, Object>> subjectList = userService.fetchSubjectsByCourseMstrSeqAndSem(
+                            courseMstrSeq,
+                            i);
+                    List<FilesVO> filesVOList= new ArrayList<>();
+                    for (Map<String,Object>subject:subjectList) {
+                        List<FileVO> fileList = userService.fetchFilesBySemAndSubjectMstrSeq(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()));
+
+                        filesVOList.add(new FilesVO(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),fileList));
+                    }
+                    semVOList.add(new SemVO(filesVOList,i));
+                }
+                //add the filesVOList to the model
+                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semVOList);
+                model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
+                model.addAttribute(ApplicationConstants.FACULTY_MATRIX_MODEL, facultyMatrixList);
+                return "files";
+//                return "testpage";
+            }
+
+        }
+        return "redirect:/login";
+    }
+
+    @RequestMapping("/fileupload")
+    public String fileUpload(@RequestParam(name = ApplicationConstants.FILEPARAM, defaultValue = "") MultipartFile file,
+                             @RequestParam(name = ApplicationConstants.COURSEPARAM,defaultValue = "") Integer courseMstrSeq,
+                             @RequestParam(name = ApplicationConstants.SEMPARAM,defaultValue = "") Integer sem,
+                             @RequestParam(name = ApplicationConstants.SUBJECTPARAM,defaultValue = "") Integer subjectMstrSeq){
+
+
+        //fetch course name
+        String courseName=null;
+        courseName = userService.fetchCourseNameById(courseMstrSeq);
+
+        //fetch subject name
+        String subjectName=null;
+        subjectName = userService.fetchSubjectNameByIdAndSem(subjectMstrSeq,sem);
+
+
+        String baseDir = "/home/vishwajit_gaikwad/Desktop/VJTI/files/";
+        String uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/";
+        try {
+            File fileDest = new File(uploadDir);
+            if (!fileDest.exists()) {
+                fileDest.mkdirs();
+            }
+            Path copyLocation = Paths.get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+            Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            FileVO fileVO = new FileVO(courseMstrSeq,sem,subjectMstrSeq,StringUtils.cleanPath(file.getOriginalFilename()),uploadDir);
+            userService.saveFileVO(fileVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/faculty/files?upload=success";
+    }
+
+
+
+
 
     @RequestMapping("/classroom")
     public String getClassroom(Model model){ return "classroom"; }

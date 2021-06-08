@@ -3,8 +3,10 @@ package com.vjti.service.impl;
 import com.vjti.common.CommonUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.constant.JdbcConstants;
+import com.vjti.model.FileVO;
 import com.vjti.model.NewsVO;
 import com.vjti.model.StudentVO;
+import com.vjti.repository.FileRepository;
 import com.vjti.repository.NewsRepository;
 import com.vjti.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class UserService implements IUserService {
 
     @Autowired
     NewsRepository newsRepository;
+
+    @Autowired
+    FileRepository fileRepository;
 
     @Override
     public Map<String, String> findByUserMstrSeq(Integer userMstrSeq,String role, String ifCookie) {
@@ -84,6 +89,7 @@ public class UserService implements IUserService {
         MapSqlParameterSource map = new MapSqlParameterSource();
         map.addValue(JdbcConstants.COURSE_MSTR_SEQ, courseMstrSeq);
         map.addValue(JdbcConstants.SEM, sem);
+        //string
         List<Map<String, Object>> timetableList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_TIMETABLE_COURSE_MSTR_SEQ_AND_SEM,map);
 
 
@@ -104,6 +110,53 @@ public class UserService implements IUserService {
         }else{
             return "INVALID ROLE_MSTR_SEQ";
         }
+    }
+
+    @Override
+    public Integer fetchSemByCourseMstrSeq(Integer courseMstrSeq) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.COURSE_MSTR_SEQ, courseMstrSeq);
+        Integer sem = namedParameterJdbcTemplate.queryForObject(JdbcConstants.FETCH_SEM_BY_COURSE_MSTR_SEQ,map,Integer.class);
+
+        return sem;
+    }
+
+    @Override
+    public List<Map<String, Object>> fetchSubjectsByCourseMstrSeqAndSem(Integer courseMstrSeq, Integer sem) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.COURSE_MSTR_SEQ, courseMstrSeq);
+        map.addValue(JdbcConstants.SEM, sem);
+        List<Map<String, Object>> subjectList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_SUBJECTS_BY_COURSE_MSTR_SEQ_AND_SEM, map);
+
+        return subjectList;
+    }
+
+    @Override
+    public List<FileVO> fetchFilesBySemAndSubjectMstrSeq(Integer sem, Integer subjectMstrSeq) {
+        List<FileVO> fileVOList = fileRepository.findAllBySemAndSubjectMstrSeq(sem, subjectMstrSeq);
+        return fileVOList;
+    }
+
+    @Override
+    public String fetchCourseNameById(Integer courseMstrSeq) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.COURSE_MSTR_SEQ, courseMstrSeq);
+        String course = namedParameterJdbcTemplate.queryForObject(JdbcConstants.FETCH_COURSE_BY_COURSE_MSTR_SEQ,map,String.class);
+        return course;
+    }
+
+    @Override
+    public String fetchSubjectNameByIdAndSem(Integer subjectMstrSeq, Integer sem) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.SUBJECT_MSTR_SEQ, subjectMstrSeq);
+        map.addValue(JdbcConstants.SEM, sem);
+        String Subject = namedParameterJdbcTemplate.queryForObject(JdbcConstants.FETCH_SUBJECT_BY_SUBJECT_MSTR_SEQ,map,String.class);
+        return Subject;
+    }
+
+    @Override
+    public void saveFileVO(FileVO fileVO) {
+        fileRepository.save(fileVO);
     }
 
 

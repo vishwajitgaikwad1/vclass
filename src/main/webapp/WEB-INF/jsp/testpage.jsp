@@ -16,19 +16,25 @@
 Welcome!
 <div class="container">
     <table class="table table-striped">
+   <%--     <tr>
+            <td>
+                RESPONSE MODEL DATA
+            </td>
+        </tr>
         <tr>
             <td>
                 ${RESPONSE.RESPONSE}
             </td>
-        </tr>
-        <tr>
             <td>
                 ${RESPONSE.LOGIN_ID}
+            </td>
+            <td>
+                ${RESPONSE.USER_MSTR_SEQ}
             </td>
         </tr>
         <tr>
             <td>
-                ${RESPONSE.USER_MSTR_SEQ}
+                ROLE MODEL Data
             </td>
         </tr>
         <tr>
@@ -36,6 +42,9 @@ Welcome!
 
                 ${ROLE.equals("STUDENT")}
             </td>
+        </tr>
+        <tr>
+            <td> TIMETABLE_MODEL Data</td>
         </tr>
                 <c:forEach items="${TIMETABLE_MODEL}" var="v">
                     <tr>
@@ -48,7 +57,29 @@ Welcome!
                         <td>${v.SAT}</td>
                     </tr>
                 </c:forEach>
+--%>
+        <tr>
+            <td>Files VO List Model Data</td>
+        </tr>
+       <tr>
+           <td>Sem No</td>
+           <td>Subject Name</td>
+           <td>File Name</td>
+       </tr>
+            <c:forEach items="${FILES_VO_LIST_MODEL}" var="filesVOList">
 
+                <tr>
+
+                    <td> ${filesVOList.sem}</td>
+                    <td> ${filesVOList.subject}</td>
+                    <c:forEach items="${filesVOList.files}" var="filesList">
+                        <td>
+                            <a href="file://${filesList.filePath}" target="_blank">${filesList.fileName}</a>
+                        </td>
+                    </c:forEach>
+                </tr>
+
+            </c:forEach>
     </table>
 </div>
 </body>

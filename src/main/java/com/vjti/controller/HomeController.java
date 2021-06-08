@@ -11,13 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 
@@ -43,14 +50,18 @@ public class HomeController {
     @RequestMapping({"/", "/login"})
     public  String showLogin(Model model,
                              @RequestParam(value = ApplicationConstants.ERRORPARAM, defaultValue = "") String error,
+                             @RequestParam(value = ApplicationConstants.ACTIONPARAM, defaultValue = "") String action,
                              @CookieValue(name=ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie){
         if(!error.isEmpty()){
             model.addAttribute("ERROR_MESSAGE", "Invalid Credentials!");
         }
+        else if(action.equals("logout")){
+            LoginVO loginVO = new LoginVO();
+            model.addAttribute("loginVO",loginVO);
+            return "login";
+        }
         else{
-            if(loginCookie.length()>0){
                 return "redirect:/authLogin";
-            }
         }
         LoginVO loginVO = new LoginVO();
         model.addAttribute("loginVO",loginVO);
@@ -70,7 +81,7 @@ public class HomeController {
             cookie.setPath("/");
             httpServletResponse.addCookie(cookie);
         }
-        return "redirect:/login";
+        return "redirect:/login?action=logout";
     }
 
 
@@ -97,6 +108,22 @@ public class HomeController {
             return "redirect:/faculty/";
         }
      return "redirect:/login?error=true";
+    }
+
+
+    @RequestMapping("/fileupload")
+    public String fileUpload(@RequestParam("file") MultipartFile file){
+
+        String uploadDir = "/home/vishwajit_gaikwad/Desktop/VJTI/files/";
+        try {
+            Path copyLocation = Paths
+                    .get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+            Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "testpage";
     }
 
 

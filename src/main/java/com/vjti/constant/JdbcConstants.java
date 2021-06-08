@@ -55,7 +55,7 @@ public interface JdbcConstants {
             "ON fmm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
             "WHERE fmm.FACULTY_MSTR_SEQ = :facultyMstrSeq;";
 
-    String FETCH_DISTINCT_FACULTY_MATRIX_BY_SEQ = "SELECT DISTINCT cm.COURSE_MSTR_SEQ, cm.COURSE_NAME, fmm.SEM \n" +
+    String FETCH_DISTINCT_FACULTY_MATRIX_BY_SEQ = "SELECT DISTINCT cm.COURSE_MSTR_SEQ, cm.COURSE_NAME, fmm.SEM,sm.SUBJECT_MSTR_SEQ, sm.SUBJECT_NAME\n" +
             "FROM south_vclass.faculty_matrix_mstr fmm \n" +
             "INNER JOIN south_vclass.course_mstr cm \n" +
             "ON fmm.COURSE_MSTR_SEQ = cm.COURSE_MSTR_SEQ \n" +
@@ -63,11 +63,37 @@ public interface JdbcConstants {
             "ON fmm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
             "WHERE fmm.FACULTY_MSTR_SEQ = :facultyMstrSeq;";
 
+    String FETCH_DISTINCT_COURSE_MATRIX_BY_SEQ = "SELECT DISTINCT cm.COURSE_MSTR_SEQ ,cm.COURSE_NAME \n" +
+            "FROM south_vclass.faculty_matrix_mstr fmm \n" +
+            "INNER JOIN south_vclass.course_mstr cm \n" +
+            "ON fmm.COURSE_MSTR_SEQ = cm.COURSE_MSTR_SEQ \n" +
+            "INNER JOIN south_vclass.subject_mstr sm\n" +
+            "ON fmm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
+            "WHERE fmm.FACULTY_MSTR_SEQ = :facultyMstrSeq;";
+
+    String FETCH_SEM_BY_COURSE_MSTR_SEQ = "SELECT SEM\n" +
+            "FROM course_mstr cm \n" +
+            "WHERE COURSE_MSTR_SEQ =:courseMstrSeq;";
+
+    String FETCH_SUBJECTS_BY_COURSE_MSTR_SEQ_AND_SEM="SELECT *\n" +
+            "FROM subject_mstr sm \n" +
+            "WHERE COURSE_MSTR_SEQ =:courseMstrSeq AND SEM =:sem;";
+
+    String FETCH_COURSE_BY_COURSE_MSTR_SEQ = "SELECT COURSE_NAME\n" +
+            "FROM course_mstr cm \n" +
+            "WHERE COURSE_MSTR_SEQ =:courseMstrSeq;";
+
+    String FETCH_SUBJECT_BY_SUBJECT_MSTR_SEQ = "SELECT SUBJECT_NAME\n" +
+            "FROM subject_mstr sm \n" +
+            "WHERE SUBJECT_MSTR_SEQ =:subjectMstrSeq AND SEM =:sem;";
+
 
     String COURSE_MSTR_SEQ = "courseMstrSeq";
     String SEM = "sem";
     String USER_ROLE_MSTR_SEQ = "userRoleMstrSeq";
     String USER_MSTR_SEQ = "userMstrSeq";
     String FACULTY_MSTR_SEQ = "facultyMstrSeq";
+    String SUBJECT_MSTR_SEQ = "subjectMstrSeq";
+
 
 }

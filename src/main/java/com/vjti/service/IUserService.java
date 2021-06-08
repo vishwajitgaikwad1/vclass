@@ -1,6 +1,7 @@
 package com.vjti.service;
 
 
+import com.vjti.model.FileVO;
 import com.vjti.model.NewsVO;
 
 import java.util.List;
@@ -18,4 +19,16 @@ public interface IUserService {
     List<Map<String, Object>> fetchTimetableForUser(Integer courseMstrSeq, Integer sem);
 
     String fetchUserRoleBySeq(Integer userRoleMstrSeq);
+
+    Integer fetchSemByCourseMstrSeq(Integer courseMstrSeq);
+
+    List<Map<String, Object>> fetchSubjectsByCourseMstrSeqAndSem(Integer courseMstrSeq, Integer sem);
+
+    List<FileVO> fetchFilesBySemAndSubjectMstrSeq(Integer sem, Integer subjectMstrSeq);
+
+    String fetchCourseNameById(Integer courseMstrSeq);
+
+    String fetchSubjectNameByIdAndSem(Integer subjectMstrSeq, Integer sem);
+
+    void saveFileVO(FileVO fileVO);
 }

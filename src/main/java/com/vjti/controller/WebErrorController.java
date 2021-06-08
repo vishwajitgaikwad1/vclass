@@ -15,21 +15,21 @@ import javax.servlet.http.HttpServletRequest;
 public class WebErrorController implements ErrorController {
 
 
-    @RequestMapping("/error")
-    public String showError(HttpServletRequest httpServletRequest){
-        Object status = httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-        if (status != null) {
-            Integer statusCode = Integer.valueOf(status.toString());
-
-            if(statusCode == HttpStatus.NOT_FOUND.value()) {
-                return "testpage";
-            }
-            else if(statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-                return "error-500";
-            }
-        }
-        return "testpage";
-    }
+//    @RequestMapping("/error")
+//    public String showError(HttpServletRequest httpServletRequest){
+//        Object status = httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+//        if (status != null) {
+//            Integer statusCode = Integer.valueOf(status.toString());
+//
+//            if(statusCode == HttpStatus.NOT_FOUND.value()) {
+//                return "testpage";
+//            }
+//            else if(statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+//                return "error-500";
+//            }
+//        }
+//        return "testpage";
+//    }
 
     @Override
     public String getErrorPath() {

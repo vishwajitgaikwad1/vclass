@@ -15,6 +15,9 @@ public interface ApplicationConstants {
     String ERRORPARAM = "error";
     String COURSEPARAM = "course";
     String SEMPARAM = "sem";
+    String ACTIONPARAM = "action";
+    String SUBJECTPARAM = "subject";
+    String FILEPARAM = "file";
 
 //APPLICATION CONSTANTS
     String STR_EMPTY ="";
@@ -46,4 +49,7 @@ public interface ApplicationConstants {
     String ROLE_MODEL = "ROLE_MODEL";
     String NEWS_MODEL = "NEWS_MODEL";
     String FACULTY_MATRIX_MODEL = "FACULTY_MATRIX_MODEL";
+    String FILES_VO_LIST_MODEL = "FILES_VO_LIST_MODEL";
+    String SEM_VO_LIST_MODEL = "SEM_VO_LIST_MODEL";
+    String COURSE_MATRIX_MODEL = "COURSE_MATRIX_MODEL";
 }

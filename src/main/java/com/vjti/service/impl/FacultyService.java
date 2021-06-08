@@ -57,4 +57,16 @@ public class FacultyService implements IFacultyService {
         }
         return null;
     }
+
+    @Override
+    public List<Map<String, Object>> fetchDistinctCourseFacultyMatrix(Integer facultyMstrSeq) {
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.FACULTY_MSTR_SEQ, facultyMstrSeq);
+        List<Map<String, Object>> facultyMatrix = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_DISTINCT_COURSE_MATRIX_BY_SEQ, map);
+        if(facultyMatrix!=null){
+            return facultyMatrix;
+        }
+        return null;
+    }
 }
