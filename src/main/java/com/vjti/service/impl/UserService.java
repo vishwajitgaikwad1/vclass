@@ -247,5 +247,13 @@ public class UserService implements IUserService {
         return requestJsonObject;
     }
 
+    public void fetchAnnouncement(String courseMstrSeq){
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.COURSE_MSTR_SEQ, courseMstrSeq);
+        List<Map<String, Object>> announcementList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_ANNOUNCEMENT, map);
+
+
+    }
+
 
 }

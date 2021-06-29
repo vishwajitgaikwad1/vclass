@@ -114,6 +114,10 @@ public interface JdbcConstants {
             "AND cm.SUBJECT_MSTR_SEQ = :subjectMstrSeq\n" +
             "AND cm.STATUS ='A';";
 
+    String FETCH_ANNOUNCEMENT = "SELECT *\n" +
+            "FROM announcement_mstr am \n" +
+            "WHERE am.COURSE_MSTR_SEQ = :courseMstrSeq;";
+
 
     String COURSE_MSTR_SEQ = "courseMstrSeq";
     String SEM = "sem";

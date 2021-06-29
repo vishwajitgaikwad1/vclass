@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+import java.util.Date;
+
 import static javax.persistence.GenerationType.IDENTITY;
 
 /**
@@ -54,4 +56,17 @@ public class ClassroomVO {
 
     @Column(name = "STATUS")
     char status;
+
+    @Column(name = "CREATED_BY")
+    Integer createdBy;
+
+    @Column(name = "CREATE_DTTM")
+    Date createDttm;
+
+    @Column(name = "UPDATED_BY")
+    Integer updatedBy;
+
+    @Column(name = "UPDATE_DTTM")
+    Date updateDttm;
+
 }

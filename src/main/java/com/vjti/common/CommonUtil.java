@@ -1,6 +1,8 @@
 package com.vjti.common;
 
 import com.vjti.constant.ApplicationConstants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.codec.binary.Base64;
 
 import java.io.PrintWriter;
@@ -13,6 +15,7 @@ import java.util.Map;
  * Created by vishwajit_gaikwad on 15/5/21.
  */
 public class CommonUtil {
+    private static Logger logger = LogManager.getLogger("CommonUtil");
 
     public static Map<String, String> getPropertiesKeyValuePair(String properties) {
         Map<String, String> propertiesMap = new HashMap<String, String>();
@@ -45,6 +48,19 @@ public class CommonUtil {
             return null;
         }
         return res;
+    }
+
+    public static Boolean callSetterMethod(Class className, Object objectName, String fieldName, Class[] paramTypes, Object... args) throws Exception {
+        String methodName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        Method method;
+        try{
+            method = className.getDeclaredMethod("set" + methodName, paramTypes);
+            method.invoke(objectName, args);
+            return true;
+        }catch (NoSuchMethodException e){
+            logger.error("callSetterMethod method not found "+className.getName()+":"+methodName);
+            return false;
+        }
     }
 
     public static String getStackTrace(Exception e) {

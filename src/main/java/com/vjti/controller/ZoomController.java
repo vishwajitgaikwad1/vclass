@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vjti.common.CommonUtil;
 import com.vjti.common.CommonWebUtil;
+import com.vjti.common.DateUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.model.ClassroomVO;
 import com.vjti.model.ZoomCreate;
@@ -27,6 +28,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,7 +92,6 @@ public class ZoomController {
                                 @CookieValue(name = ApplicationConstants.COOKIE_ZOOM)String zoomCookie,
                                 @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE)String userProfileCookie){
 
-        Map<String,String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
         if(zoomCookie.length()>0){
             JSONObject request=null;
             try{
@@ -118,17 +119,22 @@ public class ZoomController {
 
                     String dateTime = zoomCreateVO.getStart_time().replace("T"," ");
 
+                    Map<String,String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
                     ClassroomVO classroomVO = new ClassroomVO(null,
-                                                              Integer.valueOf(zoomCreateVO.getCourse()),
-                                                              Integer.valueOf(zoomCreateVO.getSem()),
-                                                              Integer.valueOf(zoomCreateVO.getSubject()),
-                                                              Integer.valueOf(userProfileCookieMap.get("FACULTY_MSTR_SEQ")),
-                                                              responseMap.get("id").toString(),
-                                                              responseMap.get("topic").toString(),
-                                                              responseMap.get("join_url").toString(),
-                                                              responseMap.get("password").toString(),
-                                                              dateTime,
-                                                              'A');
+                            Integer.valueOf(zoomCreateVO.getCourse()),
+                            Integer.valueOf(zoomCreateVO.getSem()),
+                            Integer.valueOf(zoomCreateVO.getSubject()),
+                            Integer.valueOf(userProfileCookieMap.get("FACULTY_MSTR_SEQ")),
+                            responseMap.get("id").toString(),
+                            responseMap.get("topic").toString(),
+                            responseMap.get("join_url").toString(),
+                            responseMap.get("password").toString(),
+                            dateTime,
+                            'A',
+                            Integer.valueOf(userProfileCookieMap.get("FACULTY_MSTR_SEQ")),
+                            DateUtil.getCurrentDate(),
+                            null,
+                            null);
 
                     classroomRepository.save(classroomVO);
                     return "redirect:/faculty/classroom?auth=create_success";
@@ -146,10 +152,11 @@ public class ZoomController {
     @RequestMapping("/deletemeeting")
     public String deleteMeeting(@ModelAttribute(name = "accessToken")String accessToken,
                                 @ModelAttribute(name = "zoomDeleteVO")ZoomCreate zoomCreateVO,
-                                @CookieValue(name = ApplicationConstants.COOKIE_ZOOM)String zoomCookie){
+                                @CookieValue(name = ApplicationConstants.COOKIE_ZOOM)String zoomCookie,
+                                @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE)String userProfileCookie){
 
         if(zoomCookie.length()>0){
-            Map<String, String> zoomCookieMap = CommonWebUtil.fetchCookie(zoomCookie);
+
             String path = "https://api.zoom.us/v2/meetings/";
             String newPath = path + zoomCreateVO.getMeetingId();
 
@@ -167,8 +174,12 @@ public class ZoomController {
 
                 }
 
+                Map<String, String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
                 ClassroomVO classroomVO = classroomRepository.findByMeetingId(zoomCreateVO.getMeetingId());
-                classroomRepository.delete(classroomVO);
+                classroomVO.setStatus('I');
+                classroomVO.setUpdatedBy(Integer.valueOf(userProfileCookieMap.get("FACULTY_MSTR_SEQ")));
+                classroomVO.setUpdateDttm(DateUtil.getCurrentDate());
+                classroomRepository.save(classroomVO);
                 return "redirect:/faculty/classroom?auth=delete_success";
 
             }catch (Exception e){
@@ -182,9 +193,11 @@ public class ZoomController {
     @RequestMapping("/updatemeeting")
     public String updateMeeting(@ModelAttribute(name = "accessToken")String accessToken,
                                 @ModelAttribute(name = "zoomUpdateVO")ZoomCreate zoomCreateVO,
-                                @CookieValue(name = ApplicationConstants.COOKIE_ZOOM)String zoomCookie){
+                                @CookieValue(name = ApplicationConstants.COOKIE_ZOOM)String zoomCookie,
+                                @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE)String userProfileCookie){
 
         if(zoomCookie.length()>0){
+
             JSONObject request = new JSONObject();
 
             try{
@@ -205,7 +218,19 @@ public class ZoomController {
                 headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
                 HttpEntity httpEntity = new HttpEntity(request,headers);
                 ResponseEntity<String> responseEntity =  restTemplate.exchange(newPath, HttpMethod.PATCH,httpEntity,String.class);
-                System.out.println("Response Entity"+responseEntity);
+
+                Map<String, String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+                ClassroomVO classroomVO = classroomRepository.findByMeetingId(zoomCreateVO.getMeetingId());
+                if(zoomCreateVO.getTopic()!=null){
+                    classroomVO.setClassName(zoomCreateVO.getTopic());
+                }
+                if(zoomCreateVO.getStart_time()!=null){
+                    classroomVO.setDateTime(zoomCreateVO.getStart_time().replace("T"," "));
+                }
+
+                classroomVO.setUpdatedBy(Integer.valueOf(userProfileCookieMap.get("FACULTY_MSTR_SEQ")));
+                classroomVO.setUpdateDttm(DateUtil.getCurrentDate());
+                classroomRepository.save(classroomVO);
                 return "redirect:/faculty/classroom?auth=update_success";
 
 
@@ -227,14 +252,11 @@ public class ZoomController {
                                      HttpServletResponse response,
                                      RedirectAttributes redir){
         String accesstoken = null;
-        if(!zoomCreateVO.getDate().equals("") || !zoomCreateVO.getTime().equals("")) {
+        if(zoomCreateVO.getDate()!=null && (!zoomCreateVO.getDate().equals("")) || (zoomCreateVO.getTime()!=null && !zoomCreateVO.getTime().equals(""))) {
             zoomCreateVO.setStart_time(zoomCreateVO.getDate() + "T" + zoomCreateVO.getTime() + ":00");
         }
-        String parampath = "course="+zoomCreateVO.getCourse() +
-                        "&sem="+zoomCreateVO.getSem() +
-                        "&subject="+zoomCreateVO.getSubject() +
-                        "&topic="+zoomCreateVO.getTopic() +
-                        "&date="+zoomCreateVO.getDate()+"T"+zoomCreateVO.getTime();
+
+
         if(zoomCookie.length()>0){
             Map<String, String> zoomCookieMap = CommonWebUtil.fetchCookie(zoomCookie);
             String path = "https://zoom.us//oauth/token";

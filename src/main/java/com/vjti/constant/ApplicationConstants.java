@@ -78,6 +78,12 @@ public interface ApplicationConstants {
     String ZOOM_CLIENT_ID = "kgYUMMChRnWlQ_WGfQiUlg";
     String ZOOM_CLIENT_SECRET = "PHD6jUU9p6nJczVK16J8u4pecU4vgAsT";
     String COOKIE_ZOOM = "COOKIE_ZOOM";
+    String STR_COMMA_AND_SPACE = ", ";
+    String STR_COLON = ":";
+    Integer CONVERT_TO_TIME = 60000;
+    String QUARTZ_UNIT_HOUR = "HOUR";
+    String QUARTZ_UNIT_MIN = "MIN";
+    String QUARTZ_UNIT_SEC = "SEC";
 
     /*
     * String zoomClientId = "kgYUMMChRnWlQ_WGfQiUlg";
