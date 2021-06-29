@@ -258,7 +258,35 @@ public class FacultyController {
     public String getAssignment(Model model){ return "assignment"; }
 
     @RequestMapping("/announcement")
-    public String getAnnouncement(Model model){ return "announcement"; }
+    public String getAnnouncement(Model model,
+                                  @RequestParam(name = ApplicationConstants.COURSEPARAM,defaultValue = "") Integer courseMstrSeq,
+                                  @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
+                                  @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
+        model.addAttribute(ApplicationConstants.ROLE_MODEL, "FACULTY");
+        if(loginCookie.length()>0){
+            List<Map<String,Object>> announcementVOList;
+            Map<String, String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+            List<Map<String, Object>> facultyCourseMatrixList = facultyService.fetchDistinctCourseFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+            if(courseMstrSeq!=null && courseMstrSeq!=0){
+                List<Integer> cmsList = new ArrayList<>();
+                cmsList.add(courseMstrSeq);
+                announcementVOList = userService.findAllByCourseMstrSeq(cmsList);
+            }else{
+                List<Map<String, Object>> facultyMatrixList = facultyService.fetchDistinctFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+                List<Integer> cmsList = new ArrayList<>();
+                for(Map<String,Object> facultyMatrix: facultyMatrixList){
+                    cmsList.add(Integer.valueOf(facultyMatrix.get("COURSE_MSTR_SEQ").toString()));
+
+                }
+                announcementVOList = userService.findAllByCourseMstrSeq(cmsList);
+            }
+            model.addAttribute(ApplicationConstants.ANNOUNEMENT_VO_LIST_MODEL,announcementVOList);
+            model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
+            return "announcement";
+
+        }
+        return "redirect:/login";
+    }
 
     @RequestMapping("/logout")
     public String handleLogout(){

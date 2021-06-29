@@ -114,9 +114,11 @@ public interface JdbcConstants {
             "AND cm.SUBJECT_MSTR_SEQ = :subjectMstrSeq\n" +
             "AND cm.STATUS ='A';";
 
-    String FETCH_ANNOUNCEMENT = "SELECT *\n" +
+    String FETCH_ANNOUNCEMENT = "SELECT cm.COURSE_NAME , cm.SEM , am.NAME , am.FILE_NAME , am.FILE_PATH \n" +
             "FROM announcement_mstr am \n" +
-            "WHERE am.COURSE_MSTR_SEQ = :courseMstrSeq;";
+            "INNER JOIN course_mstr cm \n" +
+            "ON cm.COURSE_MSTR_SEQ = am.COURSE_MSTR_SEQ \n" +
+            "WHERE am.COURSE_MSTR_SEQ IN(:courseMstrSeq);";
 
 
     String COURSE_MSTR_SEQ = "courseMstrSeq";

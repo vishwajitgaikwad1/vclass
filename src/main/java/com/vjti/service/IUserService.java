@@ -41,4 +41,6 @@ public interface IUserService {
     void saveFileVO(FileVO fileVO);
 
     JSONObject getRequestObject(String configName, ZoomCreate zoomCreate) throws Exception;
+
+    List<Map<String,Object>> findAllByCourseMstrSeq(List<Integer> courseMstrSeq);
 }

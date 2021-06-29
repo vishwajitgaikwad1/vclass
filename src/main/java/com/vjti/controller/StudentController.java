@@ -4,6 +4,7 @@ import com.vjti.common.CommonUtil;
 import com.vjti.common.CommonWebUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.model.*;
+import com.vjti.repository.AnnouncementRepository;
 import com.vjti.service.ILoginService;
 import com.vjti.service.IStudentService;
 import com.vjti.service.IUserService;
@@ -42,6 +43,9 @@ public class StudentController {
 
     @Autowired
     IStudentService studentService;
+
+    @Autowired
+    AnnouncementRepository announcementRepository;
 
 
     @RequestMapping("/")
@@ -201,7 +205,25 @@ public class StudentController {
     public String getAssignment(Model model){ return "assignment"; }
 
     @RequestMapping("/announcement")
-    public String getAnnouncement(Model model){ return "announcement"; }
+    public String getAnnouncement(Model model,
+                                  @RequestParam(name = ApplicationConstants.COURSEPARAM,defaultValue = "") Integer courseMstrSeq,
+                                  @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
+                                  @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
+        model.addAttribute(ApplicationConstants.ROLE_MODEL, "STUDENT");
+        if(loginCookie.length()>0){
+            List<AnnouncementVO> announcementVOList;
+            if(courseMstrSeq!=null){
+                announcementVOList = announcementRepository.findAllByCourseMstrSeq(courseMstrSeq);
+            }else{
+                Map<String, String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+                announcementVOList = announcementRepository.findAllByCourseMstrSeq(Integer.valueOf(userProfileCookieMap.get("COURSE_MSTR_SEQ")));
+            }
+            model.addAttribute(ApplicationConstants.ANNOUNEMENT_VO_LIST_MODEL,announcementVOList);
+            return "announcement";
+
+        }
+        return "redirect:/login";
+    }
 
     @RequestMapping("/logout")
     public String handleLogout(){

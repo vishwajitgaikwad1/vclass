@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
   User: vishwajit_gaikwad
@@ -181,9 +182,28 @@
             background-color: #000000;
         }
 
-        a:hover code {
+        .annList a:hover {
             background-color: transparent;
-            color: #fff;
+            color: #000;
+        }
+
+        .annList, .annList td, .annList th {
+            border: 1px solid black;
+            padding: 8px;
+        }
+
+        .annList {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .selectCourse td{
+            width: auto;
+            border:none;
+        }
+        .selectCourse{
+            border:none;
+            border-bottom: solid;
         }
 
         p a {
@@ -239,7 +259,7 @@
     </style>
 
 </head>
-<body>
+<body onload="onloadSem()">
 <header>
     <div class="container">
         <nav>
@@ -271,7 +291,112 @@
 </header>
 
 <main id="main">
-    <p>Hey man this is announcment page!</p>
+
+<c:choose>
+    <c:when test="${ROLE_MODEL.equals(\"STUDENT\")}">
+        <table class="annList">
+                <%--<th>COURSE</th>--%>
+            <th>SEM</th>
+            <th>TITLE</th>
+            <th>FILE</th>
+            <c:forEach items="${ANNOUNCEMENT_VO_LIST_MODEL}" var="annList">
+                <tr>
+                        <%--<td>${annList.courseMstrSeq}</td>--%>
+                    <td>${annList.sem}</td>
+                    <td>${annList.name}</td>
+                    <td><a href="file://${annList.filePath}${annList.fileName}" target="_blank">${annList.fileName}</a></td>
+                </tr>
+            </c:forEach>
+        </table>
+    </c:when>
+    <c:when test="${ROLE_MODEL.equals(\"FACULTY\")}">
+
+        <table class="selectCourse">
+            <tr>
+                <td> <label for="course">Select Course:</label></td>
+                <td><form name="f1" method="GET" action="#">
+                    <select name="course" id="course">
+                        <option value="0">ALL</option>
+                        <c:forEach items="${COURSE_MATRIX_MODEL}" var="cmm">
+                            <option value="${cmm.COURSE_MSTR_SEQ}">${cmm.COURSE_NAME}</option>
+                        </c:forEach>
+                    </select>
+                    <input id="submit" type="submit" value="GO"/>
+                </form>
+            </tr>
+        </table>
+
+        <table style="margin-top: 10px" class="annList">
+            <br>
+            <th>COURSE</th>
+            <th>SEM</th>
+            <th>TITLE</th>
+            <th>FILE</th>
+            <c:forEach items="${ANNOUNCEMENT_VO_LIST_MODEL}" var="annList">
+                <tr>
+                    <td>${annList.COURSE_NAME}</td>
+                    <td>${annList.SEM}</td>
+                    <td>${annList.NAME}</td>
+                    <td><a href="file://${annList.FILE_PATH}${annList.FILE_NAME}" target="_blank">${annList.FILE_NAME}</a></td>
+                </tr>
+            </c:forEach>
+        </table>
+    </c:when>
+</c:choose>
+    <script>
+        function onloadSem(){
+            const params = new URLSearchParams(window.location.search)
+            var val = params.get('course');
+            if(val!=null){ document.getElementById("course").value = val;}
+        }
+    </script>
+
+  <%--  <table class="annList">
+        &lt;%&ndash;<th>COURSE</th>&ndash;%&gt;
+        <th>SEM</th>
+        <th>TITLE</th>
+        <th>FILE</th>
+        <c:forEach items="${ANNOUNCEMENT_VO_LIST_MODEL}" var="annList">
+            <tr>
+                &lt;%&ndash;<td>${annList.courseMstrSeq}</td>&ndash;%&gt;
+                <td>${annList.sem}</td>
+                <td>${annList.name}</td>
+                <td><a href="file://${annList.filePath}${annList.fileName}" target="_blank">${annList.fileName}</a></td>
+            </tr>
+        </c:forEach>
+    </table>--%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </main>
 
 <footer class="no-margin-top">

@@ -271,7 +271,7 @@ public class ZoomController {
             if(responseEntity.getStatusCode()!=HttpStatus.OK){
                 accesstoken = zoomCookieMap.get("access_token");
             }
-            System.out.println("Response Entity"+responseEntity);
+//            System.out.println("Response Entity"+responseEntity);
             ObjectMapper mapper = new ObjectMapper();
             try {
                 Object s = mapper.readValue(responseEntity.getBody(),HashMap.class);

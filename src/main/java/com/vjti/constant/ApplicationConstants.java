@@ -66,6 +66,7 @@ public interface ApplicationConstants {
     String SEM_VO_LIST_MODEL = "SEM_VO_LIST_MODEL";
     String COURSE_MATRIX_MODEL = "COURSE_MATRIX_MODEL";
     String ROOM_VO_LIST_MODEL = "ROOM_VO_LIST_MODEL";
+    String ANNOUNEMENT_VO_LIST_MODEL = "ANNOUNCEMENT_VO_LIST_MODEL";
 
 //ZOOM CONSTANTS
     public static final String NO_OAUTH_CODE_FOUND = "No authorization code found.";

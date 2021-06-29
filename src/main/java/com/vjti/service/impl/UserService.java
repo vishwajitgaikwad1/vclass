@@ -247,13 +247,12 @@ public class UserService implements IUserService {
         return requestJsonObject;
     }
 
-    public void fetchAnnouncement(String courseMstrSeq){
+    @Override
+    public List<Map<String, Object>> findAllByCourseMstrSeq(List<Integer> courseMstrSeq) {
+
         MapSqlParameterSource map = new MapSqlParameterSource();
         map.addValue(JdbcConstants.COURSE_MSTR_SEQ, courseMstrSeq);
-        List<Map<String, Object>> announcementList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_ANNOUNCEMENT, map);
-
-
+        List<Map<String, Object>> roomList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_ANNOUNCEMENT, map);
+        return roomList;
     }
-
-
 }
