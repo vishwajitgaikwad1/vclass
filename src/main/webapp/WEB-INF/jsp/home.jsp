@@ -389,8 +389,6 @@
                 var val = params.get('sem');
                 if(val!=null){ document.getElementById("sem").value = val;}
             }
-
-
         </script>
 
         <table id = "timetable">

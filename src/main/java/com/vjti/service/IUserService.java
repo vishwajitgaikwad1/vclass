@@ -3,7 +3,11 @@ package com.vjti.service;
 
 import com.vjti.model.FileVO;
 import com.vjti.model.NewsVO;
+import com.vjti.model.RoomVO;
+import com.vjti.model.ZoomCreate;
+import org.json.simple.JSONObject;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.Map;
 
@@ -30,5 +34,11 @@ public interface IUserService {
 
     String fetchSubjectNameByIdAndSem(Integer subjectMstrSeq, Integer sem);
 
+    List<RoomVO> fetchRoomsWithParams(List<Integer> courseMstrSeq, List<Integer> sem, List<Integer> subjectMstrSeq, Integer facultyMstrSeq);
+
+    List<RoomVO> fetchRoomsBySemAndSubjectMstrSeq(Integer courseMstrSeq, Integer sem, Integer subjectMstrSeq);
+
     void saveFileVO(FileVO fileVO);
+
+    JSONObject getRequestObject(String configName, ZoomCreate zoomCreate) throws Exception;
 }

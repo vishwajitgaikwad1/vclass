@@ -55,7 +55,7 @@ public interface JdbcConstants {
             "ON fmm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
             "WHERE fmm.FACULTY_MSTR_SEQ = :facultyMstrSeq;";
 
-    String FETCH_DISTINCT_FACULTY_MATRIX_BY_SEQ = "SELECT DISTINCT cm.COURSE_MSTR_SEQ, cm.COURSE_NAME, fmm.SEM,sm.SUBJECT_MSTR_SEQ, sm.SUBJECT_NAME\n" +
+    String FETCH_DISTINCT_FACULTY_MATRIX_BY_SEQ = "SELECT DISTINCT fmm.COURSE_MSTR_SEQ ,cm.COURSE_NAME ,fmm.SUBJECT_MSTR_SEQ , sm.SUBJECT_NAME , fmm.SEM \n" +
             "FROM south_vclass.faculty_matrix_mstr fmm \n" +
             "INNER JOIN south_vclass.course_mstr cm \n" +
             "ON fmm.COURSE_MSTR_SEQ = cm.COURSE_MSTR_SEQ \n" +
@@ -87,6 +87,33 @@ public interface JdbcConstants {
             "FROM subject_mstr sm \n" +
             "WHERE SUBJECT_MSTR_SEQ =:subjectMstrSeq AND SEM =:sem;";
 
+    String FETCH_ROOMS_WITH_PARAMS = "SELECT cm2.COURSE_NAME, sm.SUBJECT_NAME, cm.SEM, cm.MEETING_ID, cm.CLASS_NAME, cm.CLASS_URL, cm.PASSWORD, cm.`DATE`\n" +
+            "FROM classroom_mstr cm \n" +
+            "INNER JOIN course_mstr cm2 \n" +
+            "ON cm.COURSE_MSTR_SEQ = cm2.COURSE_MSTR_SEQ \n" +
+            "INNER JOIN faculty_mstr fm \n" +
+            "ON cm.FACULTY_MSTR_SEQ = fm.FACULTY_MSTR_SEQ \n" +
+            "INNER JOIN subject_mstr sm \n" +
+            "ON cm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
+            "WHERE cm.COURSE_MSTR_SEQ IN (:courseMstrSeq)\n" +
+            "AND cm.SEM IN (:sem)\n" +
+            "AND cm.SUBJECT_MSTR_SEQ IN (:subjectMstrSeq)\n" +
+            "AND cm.FACULTY_MSTR_SEQ = :facultyMstrSeq \n" +
+            "AND cm.STATUS ='A';";
+
+    String FETCH_ROOMS_WITH_CMS_SEM_AND_SMS="SELECT fm.FIRSTNAME, cm.CLASS_NAME, cm.CLASS_URL, cm.PASSWORD, cm.`DATE`\n" +
+            "FROM classroom_mstr cm \n" +
+            "INNER JOIN course_mstr cm2 \n" +
+            "ON cm.COURSE_MSTR_SEQ = cm2.COURSE_MSTR_SEQ \n" +
+            "INNER JOIN faculty_mstr fm \n" +
+            "ON cm.FACULTY_MSTR_SEQ = fm.FACULTY_MSTR_SEQ \n" +
+            "INNER JOIN subject_mstr sm \n" +
+            "ON cm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
+            "WHERE cm.COURSE_MSTR_SEQ = :courseMstrSeq\n" +
+            "AND cm.SEM = :sem\n" +
+            "AND cm.SUBJECT_MSTR_SEQ = :subjectMstrSeq\n" +
+            "AND cm.STATUS ='A';";
+
 
     String COURSE_MSTR_SEQ = "courseMstrSeq";
     String SEM = "sem";
@@ -96,4 +123,8 @@ public interface JdbcConstants {
     String SUBJECT_MSTR_SEQ = "subjectMstrSeq";
 
 
+    String CONFIG_NAME = "configName";
+    String FETCH_REQUEST_BY_CONFIGNAME = "SELECT VALUE \n"+
+            "FROM config_mstr cm \n"+
+            "WHERE CONFIG_NAME = :configName ;";
 }

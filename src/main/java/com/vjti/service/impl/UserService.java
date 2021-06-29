@@ -3,17 +3,21 @@ package com.vjti.service.impl;
 import com.vjti.common.CommonUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.constant.JdbcConstants;
-import com.vjti.model.FileVO;
-import com.vjti.model.NewsVO;
-import com.vjti.model.StudentVO;
+import com.vjti.model.*;
 import com.vjti.repository.FileRepository;
 import com.vjti.repository.NewsRepository;
 import com.vjti.service.IUserService;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,8 +159,92 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public List<RoomVO> fetchRoomsWithParams(List<Integer> courseMstrSeq,List<Integer> sem, List<Integer> subjectMstrSeq, Integer facultyMstrSeq) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.COURSE_MSTR_SEQ,courseMstrSeq);
+        map.addValue(JdbcConstants.SEM, sem);
+        map.addValue(JdbcConstants.SUBJECT_MSTR_SEQ, subjectMstrSeq);
+        map.addValue(JdbcConstants.FACULTY_MSTR_SEQ, facultyMstrSeq);
+        List<Map<String, Object>> roomList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_ROOMS_WITH_PARAMS, map);
+        List<RoomVO> roomVOList = new ArrayList<>();
+        for(Map<String,Object>room : roomList){
+            java.sql.Timestamp sqlDate = java.sql.Timestamp.valueOf((LocalDateTime) room.get("DATE"));
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            String dateString = dateFormat.format(sqlDate).toString();
+            dateFormat = new SimpleDateFormat("hh.mm aa");
+            String timeString = dateFormat.format(sqlDate).toString();
+
+            roomVOList.add(new RoomVO(room.get("COURSE_NAME").toString(),
+                    room.get("SUBJECT_NAME").toString(),
+                    room.get("SEM").toString(),
+                    room.get("MEETING_ID").toString(),
+                    room.get("CLASS_NAME").toString(),
+                    room.get("CLASS_URL").toString(),
+                    dateString,
+                    timeString,
+                    room.get("PASSWORD").toString()));
+        }
+
+        return roomVOList;
+    }
+
+    @Override
+    public List<RoomVO> fetchRoomsBySemAndSubjectMstrSeq(Integer courseMstrSeq, Integer sem, Integer subjectMstrSeq) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.COURSE_MSTR_SEQ,courseMstrSeq);
+        map.addValue(JdbcConstants.SEM, sem);
+        map.addValue(JdbcConstants.SUBJECT_MSTR_SEQ, subjectMstrSeq);
+        List<Map<String, Object>> roomList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_ROOMS_WITH_CMS_SEM_AND_SMS, map);
+
+        List<RoomVO> roomVOList = new ArrayList<>();
+        for(Map<String, Object>room : roomList){
+            java.sql.Timestamp sqlDate = java.sql.Timestamp.valueOf((LocalDateTime) room.get("DATE"));
+            DateFormat dateFormat2 = new SimpleDateFormat("dd/MM/yyyy hh.mm aa");
+            String dateString2 = dateFormat2.format(sqlDate).toString();
+
+            roomVOList.add(new RoomVO(null,room.get("FIRSTNAME").toString(),null,
+                                      room.get("CLASS_NAME").toString(),
+                                      room.get("CLASS_URL").toString(),
+                                      dateString2,
+                                      room.get("PASSWORD").toString()));
+        }
+        return roomVOList;
+    }
+
+    @Override
     public void saveFileVO(FileVO fileVO) {
         fileRepository.save(fileVO);
+    }
+
+
+    @Override
+    public  JSONObject getRequestObject(String configName, ZoomCreate zoomCreate) throws Exception {
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.CONFIG_NAME,configName);
+        String requestJson = namedParameterJdbcTemplate.queryForObject(JdbcConstants.FETCH_REQUEST_BY_CONFIGNAME, map, String.class);
+
+        JSONObject requestJsonObject = new JSONObject();
+        JSONParser parser = new JSONParser();
+
+        JSONObject object = (JSONObject) parser.parse(requestJson);
+        for(Object data : object.entrySet()){
+            //code goes here
+            Map.Entry<String,Object> dataSet = (Map.Entry<String, Object>) data;
+            if(dataSet.getValue() instanceof String){
+                Object dataVal;
+                try{
+                    dataVal = CommonUtil.callGetterMethod(ZoomCreate.class,zoomCreate,String.valueOf(dataSet.getValue()));
+                }catch (Exception n){ //for predefined values in json
+                    dataVal=String.valueOf(dataSet.getValue());
+                }
+                if(dataVal != null){
+                        requestJsonObject.put(dataSet.getKey(), String.valueOf(dataVal));
+                }
+            }
+
+        }
+        return requestJsonObject;
     }
 
 

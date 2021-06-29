@@ -66,13 +66,13 @@ Welcome!
            <td>Subject Name</td>
            <td>File Name</td>
        </tr>
-            <c:forEach items="${FILES_VO_LIST_MODEL}" var="filesVOList">
+            <c:forEach items="${FILES_VO_LIST_MODEL}" var="subjectFilesVOList">
 
                 <tr>
 
-                    <td> ${filesVOList.sem}</td>
-                    <td> ${filesVOList.subject}</td>
-                    <c:forEach items="${filesVOList.files}" var="filesList">
+                    <td> ${subjectFilesVOList.sem}</td>
+                    <td> ${subjectFilesVOList.subject}</td>
+                    <c:forEach items="${subjectFilesVOList.files}" var="filesList">
                         <td>
                             <a href="file://${filesList.filePath}" target="_blank">${filesList.fileName}</a>
                         </td>

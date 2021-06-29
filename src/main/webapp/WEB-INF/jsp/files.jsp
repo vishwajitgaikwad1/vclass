@@ -338,7 +338,7 @@
 
                         <div id="collapse${semList.sem}" class="panel-collapse collapse">
                                 <%--FOR EACH SUBJECT--%>
-                                <c:forEach var="subjectList" items="${semList.filesVO}">
+                                <c:forEach var="subjectList" items="${semList.subjectFilesVO}">
                                     <div class="panel-heading">
                                         <h4 class="panel-title">
                                             <a data-toggle="collapse" href="#collapse-subject${subjectList.subjectMstrSeq}">${subjectList.subject}</a>

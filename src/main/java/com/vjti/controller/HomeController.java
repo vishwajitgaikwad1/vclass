@@ -60,7 +60,7 @@ public class HomeController {
             model.addAttribute("loginVO",loginVO);
             return "login";
         }
-        else{
+        else if(loginCookie.length()>0){
                 return "redirect:/authLogin";
         }
         LoginVO loginVO = new LoginVO();

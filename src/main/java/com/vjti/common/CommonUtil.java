@@ -1,7 +1,11 @@
 package com.vjti.common;
 
 import com.vjti.constant.ApplicationConstants;
+import org.apache.tomcat.util.codec.binary.Base64;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,5 +25,32 @@ public class CommonUtil {
             }
         }
         return propertiesMap;
+    }
+
+    public static String generateBasicAuth(String userId, String password) {
+        String plainCreds = userId + ":" + password;
+        byte[] plainCredsBytes = plainCreds.getBytes();
+        byte[] base64CredsBytes = Base64.encodeBase64(plainCredsBytes);
+        String base64Creds = new String(base64CredsBytes);
+        return "Basic " + base64Creds;
+    }
+
+    public static Object callGetterMethod(Class className, Object objectName, String fieldName) throws Exception {
+        String methodName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        Method method = className.getDeclaredMethod("get" + methodName);
+        Object res;
+        try{
+            res = method.invoke(objectName);
+        }catch (Exception e){
+            return null;
+        }
+        return res;
+    }
+
+    public static String getStackTrace(Exception e) {
+        StringWriter sWriter = new StringWriter();
+        PrintWriter pWriter = new PrintWriter(sWriter);
+        e.printStackTrace(pWriter);
+        return sWriter.toString();
     }
 }

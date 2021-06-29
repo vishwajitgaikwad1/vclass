@@ -18,6 +18,19 @@ public interface ApplicationConstants {
     String ACTIONPARAM = "action";
     String SUBJECTPARAM = "subject";
     String FILEPARAM = "file";
+    String CODEPARAM = "code";
+    String AUTHPARAM = "auth";
+
+//ZOOM PARAMS CONSTANT
+    String TOPICPARAM = "topic";
+    String AGENDAPARAM = "agenda";
+    String DATEPARAM = "date";
+    String PASSPARAM = "pass";
+    String MEETINGIDPARAM = "meetingId";
+    String DATAPARAM = "requestData";
+    String GRANT_TYPE_PARAM = "grant_type";
+    String REFRESH_TOKEN_PARAM = "refresh_token";
+    String ACCESS_TOKEN_PARAM = "access_token";
 
 //APPLICATION CONSTANTS
     String STR_EMPTY ="";
@@ -52,4 +65,21 @@ public interface ApplicationConstants {
     String FILES_VO_LIST_MODEL = "FILES_VO_LIST_MODEL";
     String SEM_VO_LIST_MODEL = "SEM_VO_LIST_MODEL";
     String COURSE_MATRIX_MODEL = "COURSE_MATRIX_MODEL";
+    String ROOM_VO_LIST_MODEL = "ROOM_VO_LIST_MODEL";
+
+//ZOOM CONSTANTS
+    public static final String NO_OAUTH_CODE_FOUND = "No authorization code found.";
+    public static final String VC_UNABLE_TO_GENERATE_TOKEN = "Failed to generate token.";
+
+//REST-POST CONSTANTS
+    String REQUEST_AUTHORIZATION = "Authorization";
+
+// ZOOM CONSTANTS
+    String ZOOM_CLIENT_ID = "kgYUMMChRnWlQ_WGfQiUlg";
+    String ZOOM_CLIENT_SECRET = "PHD6jUU9p6nJczVK16J8u4pecU4vgAsT";
+    String COOKIE_ZOOM = "COOKIE_ZOOM";
+
+    /*
+    * String zoomClientId = "kgYUMMChRnWlQ_WGfQiUlg";
+     String zoomClientSecret = "PHD6jUU9p6nJczVK16J8u4pecU4vgAsT";*/
 }

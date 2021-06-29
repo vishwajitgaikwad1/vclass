@@ -8,15 +8,14 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * Created by vishwajit_gaikwad on 30/5/21.
+ * Created by vishwajit_gaikwad on 13/6/21.
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FilesVO {
+public class SemRoomVO {
+
     Integer sem;
-    Integer subjectMstrSeq;
-    String subject;
-    List<FileVO> files;
+    List<SubjectRoomsVO> roomsVOList;
 }

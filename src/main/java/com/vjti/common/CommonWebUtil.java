@@ -22,4 +22,13 @@ public class CommonWebUtil {
         cookie.setPath("/");
         httpServletResponse.addCookie(cookie);
     }
+
+    public static void deleteCookie(String cookieName, String cookieString, HttpServletResponse httpServletResponse){
+
+        Cookie cookie = new Cookie(cookieName, null);
+        cookie.setMaxAge(0); //expires in 7 days
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        httpServletResponse.addCookie(cookie);
+    }
 }

@@ -8,6 +8,7 @@ import com.vjti.service.ILoginService;
 import com.vjti.service.IStudentService;
 import com.vjti.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -112,7 +113,7 @@ public class StudentController {
                 userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
 
 
-                List<SemVO> semVOList = new ArrayList<>();
+                List<SemFilesVO> semFilesVOList = new ArrayList<>();
                 //number of sem in a particular course.
                 Integer sem = userService.fetchSemByCourseMstrSeq(Integer.valueOf(userProfileCookieMap.get("COURSE_MSTR_SEQ")));
 
@@ -120,16 +121,16 @@ public class StudentController {
                     List<Map<String, Object>> subjectList = userService.fetchSubjectsByCourseMstrSeqAndSem(
                                                                                    Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.COURSE_MSTR_SEQ)),
                                                                                    i);
-                    List<FilesVO> filesVOList= new ArrayList<>();
+                    List<SubjectFilesVO> subjectFilesVOList = new ArrayList<>();
                     for (Map<String,Object>subject:subjectList) {
                         List<FileVO> fileList = userService.fetchFilesBySemAndSubjectMstrSeq(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()));
 
-                        filesVOList.add(new FilesVO(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),fileList));
+                        subjectFilesVOList.add(new SubjectFilesVO(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),fileList));
                     }
-                    semVOList.add(new SemVO(filesVOList,i));
+                    semFilesVOList.add(new SemFilesVO(subjectFilesVOList,i));
                 }
                 //add the filesVOList to the model
-                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semVOList);
+                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semFilesVOList);
                 return "files";
 //                return "testpage";
             }
@@ -154,7 +155,47 @@ public class StudentController {
     }
 
     @RequestMapping("/classroom")
-    public String getClassroom(Model model){ return "classroom"; }
+    public String getClassroom(Model model,
+                               @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
+                               @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
+
+        model.addAttribute(ApplicationConstants.ROLE_MODEL, "STUDENT");
+        Map<String, String> userProfileCookieMap = null;
+        Integer courseMstrSeq=0;
+
+        if(loginCookie.length()>0){
+            if (userProfileCookie.length()>1){
+                userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+                List<SemRoomVO> semRoomVOList = new ArrayList<>();
+                courseMstrSeq = Integer.valueOf(userProfileCookieMap.get("COURSE_MSTR_SEQ"));
+
+                Integer sem = userService.fetchSemByCourseMstrSeq(courseMstrSeq);
+
+
+                for (int i=1; i<=sem; i++) {
+                    List<Map<String, Object>> subjectList = userService.fetchSubjectsByCourseMstrSeqAndSem(
+                            courseMstrSeq,
+                            i);
+                    List<SubjectRoomsVO> subjectRoomsVOList = new ArrayList<>();
+                    for (Map<String,Object>subject:subjectList) {
+                        if(i==Integer.valueOf(userProfileCookieMap.get("SEM"))){
+                            List<RoomVO> roomVOList = userService.fetchRoomsBySemAndSubjectMstrSeq(courseMstrSeq,i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()));
+                            subjectRoomsVOList.add(new SubjectRoomsVO(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),roomVOList));
+                        }
+
+                    }
+                    semRoomVOList.add(new SemRoomVO(i,subjectRoomsVOList));
+                }
+                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semRoomVOList);
+                return "classroom";
+            }
+
+        }
+        return "redirect:/login";
+
+
+//        return "classroom";
+    }
 
     @RequestMapping("/assignment")
     public String getAssignment(Model model){ return "assignment"; }

@@ -6,16 +6,19 @@ import com.vjti.constant.ApplicationConstants;
 import com.vjti.model.*;
 import com.vjti.service.IFacultyService;
 import com.vjti.service.ILoginService;
-import com.vjti.service.IStudentService;
 import com.vjti.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -131,7 +134,7 @@ public class FacultyController {
                 userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
 
 
-                List<SemVO> semVOList = new ArrayList<>();
+                List<SemFilesVO> semFilesVOList = new ArrayList<>();
                 List<Map<String, Object>> facultyMatrixList = facultyService.fetchDistinctFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
                 List<Map<String, Object>> facultyCourseMatrixList = facultyService.fetchDistinctCourseFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
 
@@ -145,16 +148,16 @@ public class FacultyController {
                     List<Map<String, Object>> subjectList = userService.fetchSubjectsByCourseMstrSeqAndSem(
                             courseMstrSeq,
                             i);
-                    List<FilesVO> filesVOList= new ArrayList<>();
+                    List<SubjectFilesVO> subjectFilesVOList = new ArrayList<>();
                     for (Map<String,Object>subject:subjectList) {
                         List<FileVO> fileList = userService.fetchFilesBySemAndSubjectMstrSeq(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()));
 
-                        filesVOList.add(new FilesVO(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),fileList));
+                        subjectFilesVOList.add(new SubjectFilesVO(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),fileList));
                     }
-                    semVOList.add(new SemVO(filesVOList,i));
+                    semFilesVOList.add(new SemFilesVO(subjectFilesVOList,i));
                 }
                 //add the filesVOList to the model
-                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semVOList);
+                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semFilesVOList);
                 model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
                 model.addAttribute(ApplicationConstants.FACULTY_MATRIX_MODEL, facultyMatrixList);
                 return "files";
@@ -205,7 +208,51 @@ public class FacultyController {
 
 
     @RequestMapping("/classroom")
-    public String getClassroom(Model model){ return "classroom"; }
+    public String getClassroom(Model model,
+                               @RequestParam(name = ApplicationConstants.AUTHPARAM,defaultValue = "") String authMessage,
+                               @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
+                               @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
+        model.addAttribute(ApplicationConstants.ROLE_MODEL, "FACULTY");
+        Map<String, String> userProfileCookieMap = null;
+
+        if(loginCookie.length()>0){
+            if (userProfileCookie.length()>1){
+                if(authMessage.isEmpty()){
+                    return "redirect:/zoom/signin";
+                }
+                userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+                List<Map<String, Object>> facultyMatrixList = facultyService.fetchDistinctFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+                List<Map<String, Object>> facultyCourseMatrixList = facultyService.fetchDistinctCourseFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+
+                List<Integer> semList = new ArrayList<>();
+                List<Integer> cmsList = new ArrayList<>();
+                List<Integer> smsList = new ArrayList<>();
+                List<String> subjectList = null;
+                //list of sem, list of course_mstr_seq, list of subject_mstr_seq;
+
+                for(Map<String,Object> facultyMatrix: facultyMatrixList){
+                    semList.add(Integer.valueOf(facultyMatrix.get("SEM").toString()));
+                    cmsList.add(Integer.valueOf(facultyMatrix.get("COURSE_MSTR_SEQ").toString()));
+                    smsList.add(Integer.valueOf(facultyMatrix.get("SUBJECT_MSTR_SEQ").toString()));
+
+                }
+
+                List<RoomVO> roomVOList = userService.fetchRoomsWithParams(cmsList,
+                        semList,
+                        smsList,
+                        Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)) );
+                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, roomVOList);
+                model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
+                model.addAttribute(ApplicationConstants.FACULTY_MATRIX_MODEL, facultyMatrixList);
+
+                ZoomCreate zoomCreate = new ZoomCreate();
+                model.addAttribute("zoomCreateVO",zoomCreate);
+                return "classroom";
+            }
+
+        }
+        return "redirect:/login";
+    }
 
     @RequestMapping("/assignment")
     public String getAssignment(Model model){ return "assignment"; }
@@ -216,5 +263,14 @@ public class FacultyController {
     @RequestMapping("/logout")
     public String handleLogout(){
         return "redirect:/logout";
+    }
+
+    @RequestMapping("/refreshToken")
+    public RedirectView refreshToken(@ModelAttribute("zoomCreateVO") ZoomCreate zoomCreateVO, Model model, RedirectAttributes redir){
+//        model.addAttribute("zoomCreateVO",zoomCreateVO);
+        RedirectView redirectView = new RedirectView("/zoom/refreshtoken",true);
+        redir.addFlashAttribute("zoomCreateVO",zoomCreateVO);
+//        return "redirect:/zoom/refreshtoken";
+        return redirectView;
     }
 }

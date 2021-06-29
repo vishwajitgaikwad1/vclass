@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SemVO {
-    List<FilesVO> filesVO;
+public class SemFilesVO {
+    List<SubjectFilesVO> subjectFilesVO;
     Integer sem;
 }
