@@ -4,6 +4,7 @@ import com.vjti.common.CommonUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.constant.JdbcConstants;
 import com.vjti.model.*;
+import com.vjti.repository.AnnouncementRepository;
 import com.vjti.repository.FileRepository;
 import com.vjti.repository.NewsRepository;
 import com.vjti.service.IUserService;
@@ -38,6 +39,9 @@ public class UserService implements IUserService {
 
     @Autowired
     FileRepository fileRepository;
+
+    @Autowired
+    AnnouncementRepository announcementRepository;
 
     @Override
     public Map<String, String> findByUserMstrSeq(Integer userMstrSeq,String role, String ifCookie) {
@@ -214,6 +218,11 @@ public class UserService implements IUserService {
     @Override
     public void saveFileVO(FileVO fileVO) {
         fileRepository.save(fileVO);
+    }
+
+    @Override
+    public void saveAnnouncementVO(AnnouncementVO announcementVO){
+        announcementRepository.save(announcementVO);
     }
 
 

@@ -1,10 +1,7 @@
 package com.vjti.service;
 
 
-import com.vjti.model.FileVO;
-import com.vjti.model.NewsVO;
-import com.vjti.model.RoomVO;
-import com.vjti.model.ZoomCreate;
+import com.vjti.model.*;
 import org.json.simple.JSONObject;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -39,6 +36,8 @@ public interface IUserService {
     List<RoomVO> fetchRoomsBySemAndSubjectMstrSeq(Integer courseMstrSeq, Integer sem, Integer subjectMstrSeq);
 
     void saveFileVO(FileVO fileVO);
+
+    void saveAnnouncementVO(AnnouncementVO announcementVO);
 
     JSONObject getRequestObject(String configName, ZoomCreate zoomCreate) throws Exception;
 

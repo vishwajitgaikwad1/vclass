@@ -172,7 +172,9 @@ public class FacultyController {
     public String fileUpload(@RequestParam(name = ApplicationConstants.FILEPARAM, defaultValue = "") MultipartFile file,
                              @RequestParam(name = ApplicationConstants.COURSEPARAM,defaultValue = "") Integer courseMstrSeq,
                              @RequestParam(name = ApplicationConstants.SEMPARAM,defaultValue = "") Integer sem,
-                             @RequestParam(name = ApplicationConstants.SUBJECTPARAM,defaultValue = "") Integer subjectMstrSeq){
+                             @RequestParam(name = ApplicationConstants.SUBJECTPARAM,defaultValue = "") Integer subjectMstrSeq,
+                             @RequestParam(name = "announcementName", defaultValue = "") String announcementName,
+                             @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE,defaultValue = "")String userProfileCookie){
 
 
         //fetch course name
@@ -181,11 +183,17 @@ public class FacultyController {
 
         //fetch subject name
         String subjectName=null;
-        subjectName = userService.fetchSubjectNameByIdAndSem(subjectMstrSeq,sem);
-
+        if(subjectMstrSeq!=null){
+            subjectName = userService.fetchSubjectNameByIdAndSem(subjectMstrSeq,sem);
+        }
 
         String baseDir = "/home/vishwajit_gaikwad/Desktop/VJTI/files/";
-        String uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/";
+        String uploadDir = "";
+        if(announcementName.length()>0){
+            uploadDir = baseDir+courseName+"/"+"Announcement"+"/";
+        }else{
+            uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/";
+        }
         try {
             File fileDest = new File(uploadDir);
             if (!fileDest.exists()) {
@@ -194,13 +202,30 @@ public class FacultyController {
             Path copyLocation = Paths.get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            FileVO fileVO = new FileVO(courseMstrSeq,sem,subjectMstrSeq,StringUtils.cleanPath(file.getOriginalFilename()),uploadDir);
-            userService.saveFileVO(fileVO);
+            if(announcementName.length()>0){
+                Map<String,String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+                AnnouncementVO announcementVO = new AnnouncementVO(null,
+                                                                   courseMstrSeq,
+                                                                   sem,
+                                                                   Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)),
+                                                                   announcementName,
+                                                                   StringUtils.cleanPath(file.getOriginalFilename()),
+                                                                   uploadDir);
+
+                userService.saveAnnouncementVO(announcementVO);
+                return "redirect:/faculty/announcement";
+            }else{
+                FileVO fileVO = new FileVO(courseMstrSeq,sem,subjectMstrSeq,StringUtils.cleanPath(file.getOriginalFilename()),uploadDir);
+                userService.saveFileVO(fileVO);
+                return "redirect:/faculty/files?upload=success";
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return "redirect:/faculty/files?upload=success";
+        if(announcementName.length()>0){
+            return "redirect:/faculty/announcement?upload=fail";
+        }
+        return "redirect:/faculty/files?upload=fail";
     }
 
 
@@ -267,12 +292,13 @@ public class FacultyController {
             List<Map<String,Object>> announcementVOList;
             Map<String, String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
             List<Map<String, Object>> facultyCourseMatrixList = facultyService.fetchDistinctCourseFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+            List<Map<String, Object>> facultyMatrixList = facultyService.fetchDistinctFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
             if(courseMstrSeq!=null && courseMstrSeq!=0){
                 List<Integer> cmsList = new ArrayList<>();
                 cmsList.add(courseMstrSeq);
                 announcementVOList = userService.findAllByCourseMstrSeq(cmsList);
             }else{
-                List<Map<String, Object>> facultyMatrixList = facultyService.fetchDistinctFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+
                 List<Integer> cmsList = new ArrayList<>();
                 for(Map<String,Object> facultyMatrix: facultyMatrixList){
                     cmsList.add(Integer.valueOf(facultyMatrix.get("COURSE_MSTR_SEQ").toString()));
@@ -282,6 +308,7 @@ public class FacultyController {
             }
             model.addAttribute(ApplicationConstants.ANNOUNEMENT_VO_LIST_MODEL,announcementVOList);
             model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
+            model.addAttribute(ApplicationConstants.FACULTY_MATRIX_MODEL, facultyMatrixList);
             return "announcement";
 
         }

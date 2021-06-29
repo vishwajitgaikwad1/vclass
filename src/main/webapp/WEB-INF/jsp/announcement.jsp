@@ -9,7 +9,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Announcement | V - Class</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <style>
         body {
             display: -ms-flexbox;
@@ -221,6 +227,17 @@
             overflow: hidden;
         }
 
+        .model{
+            width: 100%;
+        }
+        .model td{
+            padding: 4px;
+        }
+
+        .model input{
+            width: 100%;
+        }
+
         /* ========================================================
                                 FOOTER CSS
         =========================================================== */
@@ -309,6 +326,7 @@
             </c:forEach>
         </table>
     </c:when>
+
     <c:when test="${ROLE_MODEL.equals(\"FACULTY\")}">
 
         <table class="selectCourse">
@@ -351,20 +369,68 @@
         }
     </script>
 
-  <%--  <table class="annList">
-        &lt;%&ndash;<th>COURSE</th>&ndash;%&gt;
-        <th>SEM</th>
-        <th>TITLE</th>
-        <th>FILE</th>
-        <c:forEach items="${ANNOUNCEMENT_VO_LIST_MODEL}" var="annList">
-            <tr>
-                &lt;%&ndash;<td>${annList.courseMstrSeq}</td>&ndash;%&gt;
-                <td>${annList.sem}</td>
-                <td>${annList.name}</td>
-                <td><a href="file://${annList.filePath}${annList.fileName}" target="_blank">${annList.fileName}</a></td>
-            </tr>
-        </c:forEach>
-    </table>--%>
+    <c:choose>
+        <c:when test="${ROLE_MODEL.equals(\"FACULTY\")}">
+            <!-- Trigger the modal with a button -->
+            <button style="margin-top: 10px" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Upload File</button>
+
+            <!-- Modal -->
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Add Announcement</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <form method="post" enctype="multipart/form-data" action="fileupload">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td>
+                                                <%--SELECT COURSE--%>
+                                            <select name="course" id="course">
+                                                <c:forEach items="${COURSE_MATRIX_MODEL}" var="cmm">
+                                                    <option value="${cmm.COURSE_MSTR_SEQ}">${cmm.COURSE_NAME}</option>
+                                                </c:forEach>
+                                            </select>
+                                                <%--SELECT SEM--%>
+                                            <select name="sem" id="sem">
+                                                <c:forEach items="${FACULTY_MATRIX_MODEL}" var="fmm">
+                                                    <option value="${fmm.SEM}">SEM ${fmm.SEM}</option>
+                                                </c:forEach>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <hr>
+
+                                <table class="model">
+                                    <tr>
+                                        <td><input type="text" name="announcementName" placeholder="Enter Title"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="file" name="file"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: right;"><input value="Upload" class="btn btn-default" type="submit"></td>
+                                    </tr>
+                                </table>
+                            </form>
+
+                        </div>
+                        <div class="modal-footer">
+                            <h4 style="font-size: 12px; float: left">Use only .pdf files</h4>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </c:when>
+    </c:choose>
 
 
 
