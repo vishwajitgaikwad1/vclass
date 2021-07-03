@@ -14,9 +14,11 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubjectFilesVO {
-    Integer sem;
-    Integer subjectMstrSeq;
-    String subject;
+public class SubjectFilesVO extends SubjectVO {
     List<FileVO> files;
+
+    public SubjectFilesVO(Integer sem, Integer subjectMstrSeq, String subject, List<FileVO> files) {
+        super(sem, subjectMstrSeq, subject);
+        this.files = files;
+    }
 }

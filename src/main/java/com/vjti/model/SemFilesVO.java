@@ -1,20 +1,18 @@
 package com.vjti.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 /**
  * Created by vishwajit_gaikwad on 1/6/21.
  */
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class SemFilesVO {
+@Data
+public class SemFilesVO extends SemVO {
     List<SubjectFilesVO> subjectFilesVO;
-    Integer sem;
+
+    public SemFilesVO(Integer sem, List<SubjectFilesVO> subjectFilesVO) {
+        super(sem);
+        this.subjectFilesVO = subjectFilesVO;
+    }
 }

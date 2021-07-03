@@ -131,7 +131,7 @@ public class StudentController {
 
                         subjectFilesVOList.add(new SubjectFilesVO(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),fileList));
                     }
-                    semFilesVOList.add(new SemFilesVO(subjectFilesVOList,i));
+                    semFilesVOList.add(new SemFilesVO(i,subjectFilesVOList));
                 }
                 //add the filesVOList to the model
                 model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semFilesVOList);

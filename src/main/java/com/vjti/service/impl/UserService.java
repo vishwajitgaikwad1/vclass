@@ -206,7 +206,7 @@ public class UserService implements IUserService {
             DateFormat dateFormat2 = new SimpleDateFormat("dd/MM/yyyy hh.mm aa");
             String dateString2 = dateFormat2.format(sqlDate).toString();
 
-            roomVOList.add(new RoomVO(null,room.get("FIRSTNAME").toString(),null,
+            roomVOList.add(new RoomVO(room.get("FIRSTNAME").toString(),
                                       room.get("CLASS_NAME").toString(),
                                       room.get("CLASS_URL").toString(),
                                       dateString2,

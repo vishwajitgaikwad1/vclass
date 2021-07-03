@@ -25,10 +25,8 @@ public class RoomVO {
     String time;
     String password;
 
-    public RoomVO(String courseName,String hostname,String sem, String className, String url, String date, String password){
-        this.courseName = courseName;
+    public RoomVO(String hostname, String className, String url, String date, String password){
         this.hostName = hostname;
-        this.sem = sem;
         this.className = className;
         this.url = url;
         this.password = password;
