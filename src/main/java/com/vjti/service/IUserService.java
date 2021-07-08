@@ -42,4 +42,14 @@ public interface IUserService {
     JSONObject getRequestObject(String configName, ZoomCreate zoomCreate) throws Exception;
 
     List<Map<String,Object>> findAllByCourseMstrSeq(List<Integer> courseMstrSeq);
+
+    List<Map<String,Object>> fetchAssignmentsBySeqAndSubjectSeq(Integer facultyMstrSeq, Integer subjectMstrSeq);
+
+    List<Map<String,Object>> fetchAssignmentsBySubjectSeq(Integer subjectMstrSeq);
+
+    List<Map<String,Object>> fetchSubmittedFilesByStudentSeqAndAssignmentSeq(Integer studentMstrSeq, Integer assignmentMstrSeq);
+
+    void saveSubmittedFilesVO(SubmittedFilesVO submittedFilesVO);
+
+    void saveAssignment(Assignment assignment);
 }

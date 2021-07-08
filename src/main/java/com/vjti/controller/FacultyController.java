@@ -8,7 +8,6 @@ import com.vjti.service.IFacultyService;
 import com.vjti.service.ILoginService;
 import com.vjti.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -173,7 +172,10 @@ public class FacultyController {
                              @RequestParam(name = ApplicationConstants.COURSEPARAM,defaultValue = "") Integer courseMstrSeq,
                              @RequestParam(name = ApplicationConstants.SEMPARAM,defaultValue = "") Integer sem,
                              @RequestParam(name = ApplicationConstants.SUBJECTPARAM,defaultValue = "") Integer subjectMstrSeq,
-                             @RequestParam(name = "announcementName", defaultValue = "") String announcementName,
+                             @RequestParam(name = ApplicationConstants.ANNOUNCEMENTNAMEPARAM, defaultValue = "") String announcementName,
+                             @RequestParam(name = ApplicationConstants.ACTIONPARAM, defaultValue = "") String actionParam,
+                             @RequestParam(name = ApplicationConstants.MARKSPARAM, defaultValue = "") Integer marks,
+                             @RequestParam(name = ApplicationConstants.ASSIGNMENTNAMEPARAM, defaultValue = "") String assignmentName,
                              @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE,defaultValue = "")String userProfileCookie){
 
 
@@ -187,13 +189,16 @@ public class FacultyController {
             subjectName = userService.fetchSubjectNameByIdAndSem(subjectMstrSeq,sem);
         }
 
-        String baseDir = "/home/vishwajit_gaikwad/Desktop/VJTI/files/";
+        String baseDir = "file:///home/vishwajit_gaikwad/Desktop/VJTI/files/";
         String uploadDir = "";
-        if(announcementName.length()>0){
-            uploadDir = baseDir+courseName+"/"+"Announcement"+"/";
-        }else{
+        if(actionParam.equals(ApplicationConstants.ACTION_ANNOUNCEMENT)){
+            uploadDir = baseDir+courseName+"/Announcement/";
+        } else if(actionParam.equals(ApplicationConstants.ACTION_NOTES)){
             uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/";
+        }else if(actionParam.equals(ApplicationConstants.ACTION_ASSIGNMENT)){
+            uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/Assignment/";
         }
+
         try {
             File fileDest = new File(uploadDir);
             if (!fileDest.exists()) {
@@ -201,31 +206,41 @@ public class FacultyController {
             }
             Path copyLocation = Paths.get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
+            Map<String,String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            switch (actionParam){
+                case ApplicationConstants.ACTION_ANNOUNCEMENT :     AnnouncementVO announcementVO = new AnnouncementVO(null,
+                                                                                                                       courseMstrSeq,
+                                                                                                                       sem,
+                                                                                                                       Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)),
+                                                                                                                       announcementName,
+                                                                                                                       fileName,
+                                                                                                                       uploadDir+fileName);
+                                                                    userService.saveAnnouncementVO(announcementVO);
+                                                                    return "redirect:/faculty/announcement?upload=success";
 
-            if(announcementName.length()>0){
-                Map<String,String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
-                AnnouncementVO announcementVO = new AnnouncementVO(null,
-                                                                   courseMstrSeq,
-                                                                   sem,
-                                                                   Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)),
-                                                                   announcementName,
-                                                                   StringUtils.cleanPath(file.getOriginalFilename()),
-                                                                   uploadDir);
+                case ApplicationConstants.ACTION_NOTES :            FileVO fileVO = new FileVO(courseMstrSeq,sem,subjectMstrSeq,fileName,uploadDir+fileName);
+                                                                    userService.saveFileVO(fileVO);
+                                                                    return "redirect:/faculty/files?upload=success";
 
-                userService.saveAnnouncementVO(announcementVO);
-                return "redirect:/faculty/announcement";
-            }else{
-                FileVO fileVO = new FileVO(courseMstrSeq,sem,subjectMstrSeq,StringUtils.cleanPath(file.getOriginalFilename()),uploadDir);
-                userService.saveFileVO(fileVO);
-                return "redirect:/faculty/files?upload=success";
+                case ApplicationConstants.ACTION_ASSIGNMENT :       Assignment assignmentVO = new Assignment(courseMstrSeq,sem,subjectMstrSeq,
+                                                                                                                 Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)),
+                                                                                                                 assignmentName,marks,fileName,uploadDir+fileName);
+                                                                    userService.saveAssignment(assignmentVO);
+                                                                    return "redirect:/faculty/assignment?upload=success";
+                default:        break;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(announcementName.length()>0){
-            return "redirect:/faculty/announcement?upload=fail";
+        if(actionParam.equals(ApplicationConstants.ACTION_ANNOUNCEMENT)){
+            return "redirect:/faculty/announcement?action=fail";
+        } else if(actionParam.equals(ApplicationConstants.ACTION_NOTES)){
+            return "redirect:/faculty/files?action=fail";
+        }else if(actionParam.equals(ApplicationConstants.ACTION_ASSIGNMENT)){
+            return "redirect:/faculty/assignment?action=fail";
         }
-        return "redirect:/faculty/files?upload=fail";
+        return "redirect:/login";
     }
 
 
@@ -280,7 +295,83 @@ public class FacultyController {
     }
 
     @RequestMapping("/assignment")
-    public String getAssignment(Model model){ return "assignment"; }
+    public String getAssignment(Model model,
+                                @RequestParam(name = ApplicationConstants.UPLOADPARAM,defaultValue = "") String upload,
+                                @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
+                                @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
+        model.addAttribute(ApplicationConstants.ROLE_MODEL, "FACULTY");
+        Map<String, String> userProfileCookieMap = null;
+
+        if(loginCookie.length()>0){
+            if(userProfileCookie.length()>0){
+                userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
+                List<CourseAssignmentVO> courseAssignmentVOList = new ArrayList<>();
+
+                //fetch course from faculty matrix
+                List<Map<String, Object>> facultyCourseMatrixList = facultyService.fetchDistinctCourseFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+
+                for(Map<String,Object> facultyCourse : facultyCourseMatrixList){
+                    //fetch sems from faculty matrix
+                    List<Integer> facultySemList = facultyService.fetchDistinctSemFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)));
+
+                    List<SemAssignmentVO> semAssignmentVOList = new ArrayList<>();
+
+                    for(Integer sem: facultySemList){
+
+                        //fetch subjects from faculty matrix by faculty_mstr_seq and sem
+                        List<Map<String,Object>> facultySubjectMatrixList = facultyService.fetchDistinctFacultyMatrix(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)), sem);
+
+                        List<SubjectAssignmentVO> subjectAssignmentVOList = new ArrayList<>();
+
+                        for(Map<String,Object> subjectMatrix : facultySubjectMatrixList){
+                            //fetch assignments
+                            List<Map<String,Object>> assignmentList = userService.fetchAssignmentsBySeqAndSubjectSeq(Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)),Integer.valueOf(subjectMatrix.get("SUBJECT_MSTR_SEQ").toString()));
+
+                            List<AssignmentVO> assignmentVOList = new ArrayList<>();
+                            for(Map<String,Object> assignment : assignmentList){
+                                //fetch submitted files
+                                List<Map<String,Object>> submittedFilesList = facultyService.fetchSubmittedFilesBySeq(Integer.valueOf(assignment.get("ASSIGNMENT_MSTR_SEQ").toString()));
+
+                                //CREATING SUBMITTED FILES VO
+                                List<SubmittedFilesVO> submittedFilesVOList = new ArrayList<>();
+                                for(Map<String,Object> submittedFiles: submittedFilesList){
+                                    submittedFilesVOList.add(new SubmittedFilesVO(Integer.valueOf(submittedFiles.get("SUBMISSION_MSTR_SEQ").toString()),
+                                                                                  Integer.valueOf(submittedFiles.get("ASSIGNMENT_MSTR_SEQ").toString()),
+                                                                                  Integer.valueOf(submittedFiles.get("USER_MSTR_SEQ").toString()),
+                                                                                  Integer.valueOf(submittedFiles.get("SUBJECT_MSTR_SEQ").toString()),
+                                            (submittedFiles.get("MARKS")== null)?0:Integer.valueOf(submittedFiles.get("MARKS").toString()),
+                                            (submittedFiles.get("STATUS")==null)?"PENDING":submittedFiles.get("STATUS").toString(),
+                                            (submittedFiles.get("SUBMIT_DATE")==null)?"NA":submittedFiles.get("SUBMIT_DATE").toString(),
+                                            (submittedFiles.get("FILE_NAME")==null)?"NA":submittedFiles.get("FILE_NAME").toString(),
+                                            (submittedFiles.get("FILE_PATH")==null)?"#":submittedFiles.get("FILE_PATH").toString()));
+                                }
+
+                                //CREATING ASSIGNMENTVO
+                                assignmentVOList.add(new AssignmentVO(Integer.valueOf(assignment.get("ASSIGNMENT_MSTR_SEQ").toString()),
+                                                                      Integer.valueOf(assignment.get("FACULTY_MSTR_SEQ").toString()),
+                                                                      assignment.get("ASSIGNMENT_NAME").toString(),
+                                                                      Integer.valueOf(assignment.get("MARKS").toString()),
+                                                                      assignment.get("FILE_PATH").toString(),
+                                                                      submittedFilesVOList));
+                            }
+
+                            //CREATING SUBJECTASSIGNMENTVO
+                            subjectAssignmentVOList.add(new SubjectAssignmentVO(Integer.valueOf(subjectMatrix.get("SEM").toString()),
+                                                                                Integer.valueOf(subjectMatrix.get("SUBJECT_MSTR_SEQ").toString()),
+                                                                                subjectMatrix.get("SUBJECT_NAME").toString(),
+                                                                                assignmentVOList));
+                        }
+
+                        semAssignmentVOList.add(new SemAssignmentVO(sem,subjectAssignmentVOList));
+                    }
+                    courseAssignmentVOList.add(new CourseAssignmentVO(Integer.valueOf(facultyCourse.get("COURSE_MSTR_SEQ").toString()),facultyCourse.get("COURSE_NAME").toString(),semAssignmentVOList));
+
+                }
+                System.out.println(courseAssignmentVOList);
+                model.addAttribute(ApplicationConstants.FACULTY_ASSIGNMENT_MODEL,courseAssignmentVOList);
+            }
+        }
+        return "assignment"; }
 
     @RequestMapping("/announcement")
     public String getAnnouncement(Model model,

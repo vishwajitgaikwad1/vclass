@@ -321,7 +321,7 @@
                         <%--<td>${annList.courseMstrSeq}</td>--%>
                     <td>${annList.sem}</td>
                     <td>${annList.name}</td>
-                    <td><a href="file://${annList.filePath}${annList.fileName}" target="_blank">${annList.fileName}</a></td>
+                    <td><a href="${annList.filePath}${annList.fileName}" target="_blank">${annList.fileName}</a></td>
                 </tr>
             </c:forEach>
         </table>
@@ -355,7 +355,7 @@
                     <td>${annList.COURSE_NAME}</td>
                     <td>${annList.SEM}</td>
                     <td>${annList.NAME}</td>
-                    <td><a href="file://${annList.FILE_PATH}${annList.FILE_NAME}" target="_blank">${annList.FILE_NAME}</a></td>
+                    <td><a href="${annList.FILE_PATH}${annList.FILE_NAME}" target="_blank">${annList.FILE_NAME}</a></td>
                 </tr>
             </c:forEach>
         </table>
@@ -386,7 +386,7 @@
                         </div>
                         <div class="modal-body">
 
-                            <form method="post" enctype="multipart/form-data" action="fileupload">
+                            <form method="post" enctype="multipart/form-data" action="fileupload?action=announcement">
                                 <table style="width: 100%;">
                                     <tr>
                                         <td>

@@ -4,9 +4,7 @@ import com.vjti.common.CommonUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.constant.JdbcConstants;
 import com.vjti.model.*;
-import com.vjti.repository.AnnouncementRepository;
-import com.vjti.repository.FileRepository;
-import com.vjti.repository.NewsRepository;
+import com.vjti.repository.*;
 import com.vjti.service.IUserService;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -42,6 +40,12 @@ public class UserService implements IUserService {
 
     @Autowired
     AnnouncementRepository announcementRepository;
+
+    @Autowired
+    SubmittedFilesRepository submittedFilesRepository;
+
+    @Autowired
+    AssignmentRepository assignmentRepository;
 
     @Override
     public Map<String, String> findByUserMstrSeq(Integer userMstrSeq,String role, String ifCookie) {
@@ -264,4 +268,38 @@ public class UserService implements IUserService {
         List<Map<String, Object>> roomList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_ANNOUNCEMENT, map);
         return roomList;
     }
+
+    @Override
+    public List<Map<String,Object>> fetchAssignmentsBySeqAndSubjectSeq(Integer facultyMstrSeq, Integer subjectMstrSeq) {
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.FACULTY_MSTR_SEQ, facultyMstrSeq);
+        map.addValue(JdbcConstants.SUBJECT_MSTR_SEQ, subjectMstrSeq);
+        List<Map<String,Object>> assignmentList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_ASSIGNMENT_BY_FACULTY_AND_SUBJECT_SEQ,map);
+        return assignmentList;
+    }
+
+    @Override
+    public List<Map<String,Object>> fetchAssignmentsBySubjectSeq(Integer subjectMstrSeq){
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.SUBJECT_MSTR_SEQ, subjectMstrSeq);
+        List<Map<String,Object>> assignmentList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_ASSIGNMENT_BY_SUBJECT_SEQ,map);
+        return assignmentList;
+
+    }
+
+    @Override
+    public List<Map<String,Object>> fetchSubmittedFilesByStudentSeqAndAssignmentSeq(Integer studentMstrSeq, Integer assignmentMstrSeq){
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.STUDENT_MSTR_SEQ,studentMstrSeq);
+        map.addValue(JdbcConstants.ASSIGNMENT_MSTR_SEQ, assignmentMstrSeq);
+        List<Map<String,Object>> submittedAssignmentList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_SUBMITTED_FILES_BY_STUDENT_MSTR_SEQ_AND_ASSIGNMENT_SEQ,map);
+        return submittedAssignmentList;
+    }
+
+    @Override
+    public void saveSubmittedFilesVO(SubmittedFilesVO submittedFilesVO) {submittedFilesRepository.save(submittedFilesVO);}
+
+    @Override
+    public void saveAssignment(Assignment assignmentVO){assignmentRepository.save(assignmentVO);}
 }

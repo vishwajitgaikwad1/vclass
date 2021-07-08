@@ -63,7 +63,24 @@ public interface JdbcConstants {
             "ON fmm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
             "WHERE fmm.FACULTY_MSTR_SEQ = :facultyMstrSeq;";
 
+    String FETCH_DISTINCT_FACULTY_MATRIX_BY_SEQ_AND_SEM = "SELECT DISTINCT fmm.COURSE_MSTR_SEQ ,cm.COURSE_NAME ,fmm.SUBJECT_MSTR_SEQ , sm.SUBJECT_NAME , fmm.SEM \n" +
+            "FROM south_vclass.faculty_matrix_mstr fmm \n" +
+            "INNER JOIN south_vclass.course_mstr cm \n" +
+            "ON fmm.COURSE_MSTR_SEQ = cm.COURSE_MSTR_SEQ \n" +
+            "INNER JOIN south_vclass.subject_mstr sm\n" +
+            "ON fmm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
+            "WHERE fmm.FACULTY_MSTR_SEQ = :facultyMstrSeq \n"+
+            "AND fmm.SEM = :sem;";
+
     String FETCH_DISTINCT_COURSE_MATRIX_BY_SEQ = "SELECT DISTINCT cm.COURSE_MSTR_SEQ ,cm.COURSE_NAME \n" +
+            "FROM south_vclass.faculty_matrix_mstr fmm \n" +
+            "INNER JOIN south_vclass.course_mstr cm \n" +
+            "ON fmm.COURSE_MSTR_SEQ = cm.COURSE_MSTR_SEQ \n" +
+            "INNER JOIN south_vclass.subject_mstr sm\n" +
+            "ON fmm.SUBJECT_MSTR_SEQ = sm.SUBJECT_MSTR_SEQ \n" +
+            "WHERE fmm.FACULTY_MSTR_SEQ = :facultyMstrSeq;";
+
+    String FETCH_DISTINCT_SEM_MATRIX_BY_SEQ = "SELECT DISTINCT fmm.SEM \n" +
             "FROM south_vclass.faculty_matrix_mstr fmm \n" +
             "INNER JOIN south_vclass.course_mstr cm \n" +
             "ON fmm.COURSE_MSTR_SEQ = cm.COURSE_MSTR_SEQ \n" +
@@ -120,6 +137,14 @@ public interface JdbcConstants {
             "ON cm.COURSE_MSTR_SEQ = am.COURSE_MSTR_SEQ \n" +
             "WHERE am.COURSE_MSTR_SEQ IN(:courseMstrSeq);";
 
+    String FETCH_ASSIGNMENT_BY_FACULTY_AND_SUBJECT_SEQ= "SELECT *\n" +
+            "FROM assignment_mstr am \n" +
+            "WHERE am.FACULTY_MSTR_SEQ = :facultyMstrSeq\n" +
+            "AND am.SUBJECT_MSTR_SEQ = :subjectMstrSeq;";
+
+    String FETCH_ASSIGNMENT_BY_SUBJECT_SEQ= "SELECT *\n" +
+            "FROM assignment_mstr am \n" +
+            "WHERE am.SUBJECT_MSTR_SEQ = :subjectMstrSeq;";
 
     String COURSE_MSTR_SEQ = "courseMstrSeq";
     String SEM = "sem";
@@ -127,10 +152,22 @@ public interface JdbcConstants {
     String USER_MSTR_SEQ = "userMstrSeq";
     String FACULTY_MSTR_SEQ = "facultyMstrSeq";
     String SUBJECT_MSTR_SEQ = "subjectMstrSeq";
+    String ASSIGNMENT_MSTR_SEQ = "assignmentMstrSeq";
+    String STUDENT_MSTR_SEQ = "studentMstrSeq";
 
 
     String CONFIG_NAME = "configName";
     String FETCH_REQUEST_BY_CONFIGNAME = "SELECT VALUE \n"+
             "FROM config_mstr cm \n"+
             "WHERE CONFIG_NAME = :configName ;";
+
+
+    String FETCH_SUBMITTED_FILES_BY_ASSIGNMENT_SEQ="SELECT *\n" +
+            "FROM submission_mstr sm \n" +
+            "WHERE sm.ASSIGNMENT_MSTR_SEQ = :assignmentMstrSeq;";
+
+    String FETCH_SUBMITTED_FILES_BY_STUDENT_MSTR_SEQ_AND_ASSIGNMENT_SEQ="SELECT *\n" +
+            "FROM submission_mstr sm \n" +
+            "WHERE sm.ASSIGNMENT_MSTR_SEQ = :assignmentMstrSeq\n" +
+            "AND sm.USER_MSTR_SEQ = :studentMstrSeq;";
 }
