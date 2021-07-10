@@ -337,9 +337,9 @@
                 <li>
                     <a href="announcement">Announcement</a>
                 </li>
-                <li>
+                <%--<li>
                     <a target="_blank" href="https://www.google.com">Profile</a>
-                </li>
+                </li>--%>
             </ul>
         </nav>
     </div>
