@@ -52,4 +52,6 @@ public interface IUserService {
     void saveSubmittedFilesVO(SubmittedFilesVO submittedFilesVO);
 
     void saveAssignment(Assignment assignment);
+
+    SubmittedFilesVO fetchSubmittedFilesBySeq(Integer submissionMstrSeq);
 }

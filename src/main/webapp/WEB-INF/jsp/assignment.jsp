@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   Created by IntelliJ IDEA.
   User: vishwajit_gaikwad
@@ -517,6 +518,7 @@
                                                             <li class="list-group-item">
                                                                 <div class="panel-heading" style="padding: 0px">
                                                                     <h4 class="panel-title">
+                                                                        <form:form method="get" action="gradeassignment" modelAttribute="gradeVO">
                                                                         <table class="exact" style="border: 0px solid black; width: 100%">
                                                                             <tr>
                                                                                 <td style="width: 75%">
@@ -524,6 +526,9 @@
                                                                                 </td>
                                                                                 <td style="text-align: right;">
                                                                                     <a target="_blank" style="font-size: 14px" href="${assignmentList.path}">View Assignment</a>
+                                                                                </td>
+                                                                                <td style="text-align: right;">
+                                                                                    <input type="submit" value="Grade" />
                                                                                 </td>
                                                                             </tr>
                                                                         </table>
@@ -539,15 +544,17 @@
                                                                         <th>Submission Date(YYYY-MM-DD)</th>
                                                                         <th>File</th>
 
-                                                                        <c:forEach items="${assignmentList.submittedFilesList}" var="submissionList">
+
+                                                                        <c:forEach items="${assignmentList.submittedFilesList}" var="submissionList" varStatus="index">
                                                                             <tr>
-                                                                                <td><input type="checkbox" value="${submissionList.userMstrSeq}"> ${submissionList.userMstrSeq}</td>
+                                                                                <td><label><form:checkbox path="submissionList[${index.index}].submissionMstrSeq" value="${submissionList.submissionMstrSeq}"></form:checkbox> ${submissionList.userMstrSeq}</label></td>
                                                                                 <td>${submissionList.status}</td>
-                                                                                <td>${submissionList.marks}</td>
+                                                                                <td><form:input path="submissionList[${index.index}].marks" placeholder="${submissionList.marks}"></form:input> </td>
                                                                                 <td>${submissionList.date}</td>
                                                                                 <td><a href="${submissionList.filePath}">View</a></td>
                                                                             </tr>
                                                                         </c:forEach>
+                                                                        </form:form>
                                                                     </table>
                                                                 </div>
 

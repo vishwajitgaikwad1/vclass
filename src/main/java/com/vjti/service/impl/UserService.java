@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by vishwajit_gaikwad on 12/5/21.
@@ -302,4 +299,10 @@ public class UserService implements IUserService {
 
     @Override
     public void saveAssignment(Assignment assignmentVO){assignmentRepository.save(assignmentVO);}
+
+    @Override
+    public SubmittedFilesVO fetchSubmittedFilesBySeq(Integer submissionMstrSeq) {
+        SubmittedFilesVO s = submittedFilesRepository.getOne(submissionMstrSeq);
+        return s;
+    }
 }

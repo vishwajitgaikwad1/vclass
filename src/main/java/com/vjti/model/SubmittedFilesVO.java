@@ -19,7 +19,7 @@ public class SubmittedFilesVO {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "SUBMISISON_MSTR_SEQ", unique = true, nullable = false)
+    @Column(name = "SUBMISSION_MSTR_SEQ", unique = true, nullable = false)
     Integer submissionMstrSeq;
 
     @Column(name = "ASSIGNMENT_MSTR_SEQ")

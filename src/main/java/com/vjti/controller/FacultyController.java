@@ -302,6 +302,7 @@ public class FacultyController {
     @RequestMapping("/assignment")
     public String getAssignment(Model model,
                                 @RequestParam(name = ApplicationConstants.UPLOADPARAM,defaultValue = "") String upload,
+                                @RequestParam(name = ApplicationConstants.ACTIONPARAM, defaultValue = "") String action,
                                 @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
                                 @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
         model.addAttribute(ApplicationConstants.ROLE_MODEL, "FACULTY");
@@ -310,7 +311,7 @@ public class FacultyController {
         /*ZoomCreate zoomCreate = new ZoomCreate();
                 model.addAttribute("zoomCreateVO",zoomCreate);*/
 
-        GradeVO gradeVO = new GradeVO();
+        GradeVOList gradeVO = new GradeVOList();
         model.addAttribute("gradeVO",gradeVO);
 
         if(loginCookie.length()>0){
@@ -381,13 +382,31 @@ public class FacultyController {
                 System.out.println(courseAssignmentVOList);
                 model.addAttribute(ApplicationConstants.FACULTY_ASSIGNMENT_MODEL,courseAssignmentVOList);
                 if(upload.length()>0){
-                    MessageVO messageVO = new MessageVO(upload,"Assignment upload "+upload);
+                    MessageVO messageVO = new MessageVO("Success","Assignment Uploaded Successfully");
+                    model.addAttribute("MESSAGE",messageVO);
+                }else if(action.length()>0){
+                    MessageVO messageVO = new MessageVO("Success","Assignments Graded Successfully!");
                     model.addAttribute("MESSAGE",messageVO);
                 }
                 return "assignment";
             }
         }
         return "redirect:/login"; }
+
+
+    @RequestMapping("/gradeassignment")
+    public String gradeAssignments(@ModelAttribute(name = "gradeVO")GradeVOList gradeVO){
+        System.out.println(gradeVO);
+        for (SubmittedFilesVO submittedFile: gradeVO.getSubmissionList()) {
+            if(submittedFile.getMarks()!=null){
+                SubmittedFilesVO submittedFilesVO = userService.fetchSubmittedFilesBySeq(submittedFile.getSubmissionMstrSeq());
+                submittedFilesVO.setMarks(submittedFile.getMarks());
+                submittedFilesVO.setStatus("GRADED");
+                userService.saveSubmittedFilesVO(submittedFilesVO);
+            }
+        }
+        return "redirect:/faculty/assignment?action=gradesuccess";
+    }
 
     @RequestMapping("/announcement")
     public String getAnnouncement(Model model,
