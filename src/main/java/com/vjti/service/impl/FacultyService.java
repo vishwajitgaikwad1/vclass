@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +60,19 @@ public class FacultyService implements IFacultyService {
     }
 
     @Override
+    public List<Map<String, Object>> fetchDistinctFacultyMatrix(Integer facultyMstrSeq, Integer sem) {
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.FACULTY_MSTR_SEQ, facultyMstrSeq);
+        map.addValue(JdbcConstants.SEM,sem);
+        List<Map<String, Object>> facultyMatrix = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_DISTINCT_FACULTY_MATRIX_BY_SEQ_AND_SEM, map);
+        if(facultyMatrix!=null){
+            return facultyMatrix;
+        }
+        return null;
+    }
+
+    @Override
     public List<Map<String, Object>> fetchDistinctCourseFacultyMatrix(Integer facultyMstrSeq) {
 
         MapSqlParameterSource map = new MapSqlParameterSource();
@@ -68,5 +82,31 @@ public class FacultyService implements IFacultyService {
             return facultyMatrix;
         }
         return null;
+    }
+
+    @Override
+    public List<Integer> fetchDistinctSemFacultyMatrix(Integer facultyMstrSeq){
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.FACULTY_MSTR_SEQ, facultyMstrSeq);
+        List<Map<String, Object>> facultyMatrix = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_DISTINCT_SEM_MATRIX_BY_SEQ, map);
+        if(facultyMatrix!=null){
+            List<Integer> semList = new ArrayList<>();
+            for(Map<String,Object> sem : facultyMatrix){
+                semList.add(Integer.valueOf(sem.get("SEM").toString()));
+            }
+            return semList;
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<Map<String, Object>> fetchSubmittedFilesBySeq(Integer assignmentMstrSeq) {
+
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.ASSIGNMENT_MSTR_SEQ, assignmentMstrSeq);
+        List<Map<String, Object>> facultyMatrix = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_SUBMITTED_FILES_BY_ASSIGNMENT_SEQ, map);
+        return facultyMatrix;
     }
 }

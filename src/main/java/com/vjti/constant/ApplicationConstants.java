@@ -20,6 +20,16 @@ public interface ApplicationConstants {
     String FILEPARAM = "file";
     String CODEPARAM = "code";
     String AUTHPARAM = "auth";
+    String ASSIGNMENTPARAM = "assignment";
+    String UPLOADPARAM = "upload";
+    String ANNOUNCEMENTNAMEPARAM = "announcementName";
+    String MARKSPARAM = "marks";
+    String ASSIGNMENTNAMEPARAM = "assignmentName";
+
+    String ACTION_ANNOUNCEMENT = "announcement";
+    String ACTION_NOTES = "notes";
+    String ACTION_NEWS = "news";
+    String ACTION_ASSIGNMENT = "assignment";
 
 //ZOOM PARAMS CONSTANT
     String TOPICPARAM = "topic";
@@ -67,6 +77,8 @@ public interface ApplicationConstants {
     String COURSE_MATRIX_MODEL = "COURSE_MATRIX_MODEL";
     String ROOM_VO_LIST_MODEL = "ROOM_VO_LIST_MODEL";
     String ANNOUNEMENT_VO_LIST_MODEL = "ANNOUNCEMENT_VO_LIST_MODEL";
+    String FACULTY_ASSIGNMENT_MODEL = "FACULTY_ASSIGNMENT_MODEL";
+    String STUDENT_ASSIGNMENT_MODEL = "STUDENT_ASSIGNMENT_MODEL";
 
 //ZOOM CONSTANTS
     public static final String NO_OAUTH_CODE_FOUND = "No authorization code found.";
@@ -85,6 +97,7 @@ public interface ApplicationConstants {
     String QUARTZ_UNIT_HOUR = "HOUR";
     String QUARTZ_UNIT_MIN = "MIN";
     String QUARTZ_UNIT_SEC = "SEC";
+
 
     /*
     * String zoomClientId = "kgYUMMChRnWlQ_WGfQiUlg";

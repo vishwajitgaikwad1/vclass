@@ -117,6 +117,7 @@ public class FacultyController {
 
     @RequestMapping("/files")
     public String showFilesPage(Model model,
+                                @RequestParam(name = "upload", defaultValue = "") String upload,
                                 @RequestParam(name = ApplicationConstants.COURSEPARAM,defaultValue = "") Integer courseMstrSeq,
                                 @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
                                 @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
@@ -159,6 +160,10 @@ public class FacultyController {
                 model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semFilesVOList);
                 model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
                 model.addAttribute(ApplicationConstants.FACULTY_MATRIX_MODEL, facultyMatrixList);
+                if(upload.length()>0){
+                    MessageVO messageVO = new MessageVO(upload,"Assignment upload "+upload);
+                    model.addAttribute("MESSAGE",messageVO);
+                }
                 return "files";
 //                return "testpage";
             }
@@ -189,14 +194,14 @@ public class FacultyController {
             subjectName = userService.fetchSubjectNameByIdAndSem(subjectMstrSeq,sem);
         }
 
-        String baseDir = "file:///home/vishwajit_gaikwad/Desktop/VJTI/files/";
+        String baseDir = "/home/vishwajit_gaikwad/Desktop/VJTI/files/";
         String uploadDir = "";
         if(actionParam.equals(ApplicationConstants.ACTION_ANNOUNCEMENT)){
             uploadDir = baseDir+courseName+"/Announcement/";
         } else if(actionParam.equals(ApplicationConstants.ACTION_NOTES)){
             uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/";
         }else if(actionParam.equals(ApplicationConstants.ACTION_ASSIGNMENT)){
-            uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/Assignment/";
+            uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/Assignment/"+assignmentName+"/";
         }
 
         try {
@@ -215,17 +220,17 @@ public class FacultyController {
                                                                                                                        Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)),
                                                                                                                        announcementName,
                                                                                                                        fileName,
-                                                                                                                       uploadDir+fileName);
+                                                                                                                       "file://"+uploadDir+fileName);
                                                                     userService.saveAnnouncementVO(announcementVO);
                                                                     return "redirect:/faculty/announcement?upload=success";
 
-                case ApplicationConstants.ACTION_NOTES :            FileVO fileVO = new FileVO(courseMstrSeq,sem,subjectMstrSeq,fileName,uploadDir+fileName);
+                case ApplicationConstants.ACTION_NOTES :            FileVO fileVO = new FileVO(null,courseMstrSeq,sem,subjectMstrSeq,fileName,"file://"+uploadDir+fileName);
                                                                     userService.saveFileVO(fileVO);
                                                                     return "redirect:/faculty/files?upload=success";
 
                 case ApplicationConstants.ACTION_ASSIGNMENT :       Assignment assignmentVO = new Assignment(courseMstrSeq,sem,subjectMstrSeq,
                                                                                                                  Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)),
-                                                                                                                 assignmentName,marks,fileName,uploadDir+fileName);
+                                                                                                                 assignmentName,marks,fileName,"file://"+uploadDir+fileName);
                                                                     userService.saveAssignment(assignmentVO);
                                                                     return "redirect:/faculty/assignment?upload=success";
                 default:        break;
@@ -234,11 +239,11 @@ public class FacultyController {
             e.printStackTrace();
         }
         if(actionParam.equals(ApplicationConstants.ACTION_ANNOUNCEMENT)){
-            return "redirect:/faculty/announcement?action=fail";
+            return "redirect:/faculty/announcement?upload=fail";
         } else if(actionParam.equals(ApplicationConstants.ACTION_NOTES)){
-            return "redirect:/faculty/files?action=fail";
+            return "redirect:/faculty/files?upload=fail";
         }else if(actionParam.equals(ApplicationConstants.ACTION_ASSIGNMENT)){
-            return "redirect:/faculty/assignment?action=fail";
+            return "redirect:/faculty/assignment?upload=fail";
         }
         return "redirect:/login";
     }
@@ -301,6 +306,12 @@ public class FacultyController {
                                 @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
         model.addAttribute(ApplicationConstants.ROLE_MODEL, "FACULTY");
         Map<String, String> userProfileCookieMap = null;
+
+        /*ZoomCreate zoomCreate = new ZoomCreate();
+                model.addAttribute("zoomCreateVO",zoomCreate);*/
+
+        GradeVO gradeVO = new GradeVO();
+        model.addAttribute("gradeVO",gradeVO);
 
         if(loginCookie.length()>0){
             if(userProfileCookie.length()>0){
@@ -369,12 +380,18 @@ public class FacultyController {
                 }
                 System.out.println(courseAssignmentVOList);
                 model.addAttribute(ApplicationConstants.FACULTY_ASSIGNMENT_MODEL,courseAssignmentVOList);
+                if(upload.length()>0){
+                    MessageVO messageVO = new MessageVO(upload,"Assignment upload "+upload);
+                    model.addAttribute("MESSAGE",messageVO);
+                }
+                return "assignment";
             }
         }
-        return "assignment"; }
+        return "redirect:/login"; }
 
     @RequestMapping("/announcement")
     public String getAnnouncement(Model model,
+                                  @RequestParam(name = "upload", defaultValue = "") String upload,
                                   @RequestParam(name = ApplicationConstants.COURSEPARAM,defaultValue = "") Integer courseMstrSeq,
                                   @CookieValue(name = ApplicationConstants.COOKIE_LOGIN, defaultValue = "") String loginCookie,
                                   @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE, defaultValue = "") String userProfileCookie){
@@ -400,6 +417,10 @@ public class FacultyController {
             model.addAttribute(ApplicationConstants.ANNOUNEMENT_VO_LIST_MODEL,announcementVOList);
             model.addAttribute(ApplicationConstants.COURSE_MATRIX_MODEL, facultyCourseMatrixList);
             model.addAttribute(ApplicationConstants.FACULTY_MATRIX_MODEL, facultyMatrixList);
+            if(upload.length()>0){
+                MessageVO messageVO = new MessageVO(upload,"Assignment upload "+upload);
+                model.addAttribute("MESSAGE",messageVO);
+            }
             return "announcement";
 
         }

@@ -18,4 +18,10 @@ public interface IFacultyService {
     List<Map<String, Object>> fetchDistinctFacultyMatrix(Integer facultyMstrSeq);
 
     List<Map<String, Object>> fetchDistinctCourseFacultyMatrix(Integer facultyMstrSeq);
+
+    List<Integer> fetchDistinctSemFacultyMatrix(Integer facultyMstrSeq);
+
+    List<Map<String,Object>> fetchSubmittedFilesBySeq(Integer assignmentMstrSeq);
+
+    List<Map<String,Object>> fetchDistinctFacultyMatrix(Integer integer, Integer sem);
 }

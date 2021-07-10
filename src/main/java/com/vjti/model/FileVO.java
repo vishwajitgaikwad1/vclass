@@ -15,7 +15,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Entity
 @Table(name = "files_mstr")
 public class FileVO {
@@ -40,7 +40,7 @@ public class FileVO {
     @Column(name = "FILE_PATH")
     String filePath;
 
-    public FileVO(Integer courseMstrSeq, Integer sem, Integer subjectMstrSeq, String fileName, String uploadDir) {
+    public FileVO(Integer fms,Integer courseMstrSeq, Integer sem, Integer subjectMstrSeq, String fileName, String uploadDir) {
         this.courseMstrSeq=courseMstrSeq;
         this.sem=sem;
         this.subjectMstrSeq=subjectMstrSeq;
