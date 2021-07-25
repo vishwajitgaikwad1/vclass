@@ -154,6 +154,8 @@ public interface JdbcConstants {
     String SUBJECT_MSTR_SEQ = "subjectMstrSeq";
     String ASSIGNMENT_MSTR_SEQ = "assignmentMstrSeq";
     String STUDENT_MSTR_SEQ = "studentMstrSeq";
+    String TEMPLATE_CD = "templateCd";
+    String TEMPLATE_TYPE = "templateType";
 
 
     String CONFIG_NAME = "configName";
@@ -170,4 +172,10 @@ public interface JdbcConstants {
             "FROM submission_mstr sm \n" +
             "WHERE sm.ASSIGNMENT_MSTR_SEQ = :assignmentMstrSeq\n" +
             "AND sm.USER_MSTR_SEQ = :studentMstrSeq;";
+
+    String FETCH_EMAIL_TEMPLATE_BY_TEMP_CD_AND_TYPE = "SELECT * \n" +
+            "FROM email_template_mstr etm \n" +
+            "WHERE etm.TEMPLATE_TYPE = :templateType\n" +
+            "AND etm.TEMPLATE_CD = :templateCd;";
+
 }

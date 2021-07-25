@@ -6,6 +6,7 @@ import com.vjti.common.DateUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.model.*;
 import com.vjti.repository.AnnouncementRepository;
+import com.vjti.service.IEmailService;
 import com.vjti.service.ILoginService;
 import com.vjti.service.IStudentService;
 import com.vjti.service.IUserService;
@@ -48,6 +49,9 @@ public class StudentController {
 
     @Autowired
     AnnouncementRepository announcementRepository;
+
+    @Autowired
+    IEmailService emailService;
 
 
     @RequestMapping("/")
@@ -160,24 +164,15 @@ public class StudentController {
                 List<SemRoomVO> semRoomVOList = new ArrayList<>();
                 courseMstrSeq = Integer.valueOf(userProfileCookieMap.get("COURSE_MSTR_SEQ"));
 
-                Integer sem = userService.fetchSemByCourseMstrSeq(courseMstrSeq);
-
-
-                for (int i=1; i<=sem; i++) {
-                    List<Map<String, Object>> subjectList = userService.fetchSubjectsByCourseMstrSeqAndSem(
-                            courseMstrSeq,
-                            i);
-                    List<SubjectRoomsVO> subjectRoomsVOList = new ArrayList<>();
-                    for (Map<String,Object>subject:subjectList) {
-                        if(i==Integer.valueOf(userProfileCookieMap.get("SEM"))){
-                            List<RoomVO> roomVOList = userService.fetchRoomsBySemAndSubjectMstrSeq(courseMstrSeq,i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()));
-                            subjectRoomsVOList.add(new SubjectRoomsVO(i,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),roomVOList));
-                        }
-
-                    }
-                    semRoomVOList.add(new SemRoomVO(i,subjectRoomsVOList));
+                Integer sem = Integer.valueOf(userProfileCookieMap.get("SEM")); //userService.fetchSemByCourseMstrSeq(courseMstrSeq);
+                List<Map<String, Object>> subjectList = userService.fetchSubjectsByCourseMstrSeqAndSem(courseMstrSeq,sem);
+                List<SubjectRoomsVO> subjectRoomsVOList = new ArrayList<>();
+                for (Map<String,Object>subject:subjectList) {
+                        List<RoomVO> roomVOList = userService.fetchRoomsBySemAndSubjectMstrSeq(courseMstrSeq,sem,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()));
+                        subjectRoomsVOList.add(new SubjectRoomsVO(sem,Integer.valueOf(subject.get("SUBJECT_MSTR_SEQ").toString()),subject.get("SUBJECT_NAME").toString(),roomVOList));
                 }
-                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, semRoomVOList);
+
+                model.addAttribute(ApplicationConstants.SEM_VO_LIST_MODEL, subjectRoomsVOList);
                 return "classroom";
             }
 
@@ -263,6 +258,7 @@ public class StudentController {
                              @RequestParam(name = ApplicationConstants.SUBJECTPARAM,defaultValue = "") Integer subjectMstrSeq,
                              @RequestParam(name = ApplicationConstants.ACTIONPARAM, defaultValue = "") String actionParam,
                              @RequestParam(name = ApplicationConstants.ASSIGNMENTPARAM, defaultValue = "") Integer assignmentMstrSeq,
+                             @RequestParam(name = "assignmentName", defaultValue = "") String assignmentName,
                              @CookieValue(name = ApplicationConstants.COOKIE_USER_PROFILE,defaultValue = "")String userProfileCookie){
 
         Map<String, String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
@@ -278,7 +274,7 @@ public class StudentController {
         subjectName = userService.fetchSubjectNameByIdAndSem(subjectMstrSeq,sem);
 
         if(actionParam.equals(ApplicationConstants.ACTION_ASSIGNMENT)){
-            uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/Assignment/Submission/";
+            uploadDir = baseDir+courseName+"/"+"SEM"+sem+"/"+subjectName+"/Assignment/"+assignmentName+"/Submission/"; // /Assignment/AssignmentName/Submission/
         }
         try{
             File fileDest = new File(uploadDir);
@@ -307,6 +303,13 @@ public class StudentController {
                                                                     fileName,
                                                                     "file://"+uploadDir+fileName);
             userService.saveSubmittedFilesVO(submittedFilesVO);
+            List<Map<String,Object>> emailTemplate = userService.getEmailTemplate("STUDENT","ASSIGNMENT_SUCCESS");
+            String message = emailTemplate.get(0).get("TEMPLATE_BODY").toString();
+            message = message.replace("<Assignment Name>",assignmentName);
+
+            String to = userProfileCookieMap.get("EMAIL");
+            String subject = emailTemplate.get(0).get("TEMPLATE_SUBJECT").toString();
+            emailService.sendMail(message, to, subject);
             return "redirect:/student/assignment?upload=success";
 
         }catch (Exception e){

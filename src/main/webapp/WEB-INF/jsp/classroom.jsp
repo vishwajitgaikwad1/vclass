@@ -326,23 +326,10 @@
             <c:when test="${ROLE_MODEL.equals(\"STUDENT\")}">
                 <div class="panel-group">
                     <div class="panel panel-default">
-
-
-                            <%--FOR EACH SEM--%>
-                        <c:forEach items="${SEM_VO_LIST_MODEL}" var="semList">
-                            <div class="panel-heading" style="background-color: #333">
-                                <h4 class="panel-title">
-                                    <a style="color: white" data-toggle="collapse" href="#collapse${semList.sem}">SEM ${semList.sem}</a>
-                                </h4>
-                            </div>
-
-
-                            <div id="collapse${semList.sem}" class="panel-collapse collapse">
-                                    <%--FOR EACH SUBJECT--%>
-                                <c:forEach var="subjectList" items="${semList.roomsVOList}">
-                                    <div class="panel-heading">
+                                <c:forEach var="subjectList" items="${SEM_VO_LIST_MODEL}">
+                                    <div class="panel-heading" style="background-color: #333; margin-bottom: 10px;">
                                         <h4 class="panel-title">
-                                            <a data-toggle="collapse" href="#collapse-subject${subjectList.subjectMstrSeq}">${subjectList.subject}</a>
+                                            <a style="color: white" data-toggle="collapse" href="#collapse-subject${subjectList.subjectMstrSeq}">${subjectList.subject}</a>
                                         </h4>
                                     </div>
                                     <div id="collapse-subject${subjectList.subjectMstrSeq}" class="panel-collapse collapse">
@@ -368,12 +355,11 @@
                                                 </table>
                                             </li>
                                         </ul>
+                                        <div class="panel-footer" style="background-color: black;"></div>
                                     </div>
+
                                 </c:forEach>
-                                <div class="panel-footer" style="background-color: black;"></div>
-                            </div>
-                            <div class="panel-group" style="background-color:transparent;"></div>
-                        </c:forEach>
+
                     </div>
 
                 </div>
@@ -459,11 +445,12 @@
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td><form:input type="text" name="createMeetingName" placeholder="Enter Meeting Name" path="topic" /></td>
+                                                            <td style="padding-top: 10px">Meeting Name:<form:input type="text" name="createMeetingName" placeholder="Enter Meeting Name" path="topic" /></td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
+                                                            <td style="padding-top: 10px">Date:
                                                                 <form:input style="margin-bottom: 8px;" type="date" id="createMeetingDate" name="createMeetingDate" path="date"/>
+                                                                Time:
                                                                 <form:input type="time" id="createMeetingTime" name="createMeetingTime" path="time"/>
                                                             </td>
                                                         </tr>
@@ -493,13 +480,13 @@
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
+                                                            <td style="padding-top: 10px">
                                                                 <%--<form:input type="text" name="createMeetingName" placeholder="Enter Meeting Name" path="topic" />--%>
                                                                 <form:input path="topic" type="text" id="updateMeetingName" name="updateMeetingName" placeholder="Enter New Meeting Name" />
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td>
+                                                            <td style="padding-top: 10px">
                                                                 <form:input path="date" style="margin-bottom: 8px;" type="date" id="updateMeetingDate" name="updateMeetingDate" />
                                                                 <form:input path="time" type="time" id="updateMeetingTime" name="updateMeetingTime" />
                                                             </td>
@@ -519,7 +506,7 @@
                                                 <form:form action="/zoom/refreshtoken?action=deleteMeeting" modelAttribute="zoomCreateVO" >
                                                     <table style="width: 100%;">
                                                         <tr>
-                                                            <td>
+                                                            <td style="padding-top: 10px">
                                                                 <form:select name="deleteMeeting" id="deleteMeeting" path="meetingId" onchange="onChangeDeleteMeeting()" style="width: 100%; margin-bottom: 10px">
                                                                     <c:forEach items="${SEM_VO_LIST_MODEL}" var = "updateList">
                                                                         <option value="${updateList.meetingId}">${updateList.className} - ${updateList.date} - ${updateList.time}</option>

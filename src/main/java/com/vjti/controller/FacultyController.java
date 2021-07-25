@@ -4,6 +4,7 @@ import com.vjti.common.CommonUtil;
 import com.vjti.common.CommonWebUtil;
 import com.vjti.constant.ApplicationConstants;
 import com.vjti.model.*;
+import com.vjti.service.IEmailService;
 import com.vjti.service.IFacultyService;
 import com.vjti.service.ILoginService;
 import com.vjti.service.IUserService;
@@ -44,6 +45,9 @@ public class FacultyController {
 
     @Autowired
     IFacultyService facultyService;
+
+    @Autowired
+    IEmailService emailService;
 
     @RequestMapping("/")
     public String showPage(){
@@ -213,6 +217,10 @@ public class FacultyController {
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
             Map<String,String> userProfileCookieMap = CommonWebUtil.fetchCookie(userProfileCookie);
             String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            String emailSubject=null;
+            String emailTo=null;
+            String emailMessage=null;
+            List<Map<String,Object>> emailTemplate = new ArrayList<>();
             switch (actionParam){
                 case ApplicationConstants.ACTION_ANNOUNCEMENT :     AnnouncementVO announcementVO = new AnnouncementVO(null,
                                                                                                                        courseMstrSeq,
@@ -222,16 +230,36 @@ public class FacultyController {
                                                                                                                        fileName,
                                                                                                                        "file://"+uploadDir+fileName);
                                                                     userService.saveAnnouncementVO(announcementVO);
+                                                                    emailTemplate = userService.getEmailTemplate("FACULTY","ANNOUNCEMENT_SUCCESS");
+                                                                    emailSubject=emailTemplate.get(0).get("TEMPLATE_SUBJECT").toString();
+                                                                    emailTo=userProfileCookieMap.get("EMAIL");
+                                                                    emailMessage=emailTemplate.get(0).get("TEMPLATE_BODY").toString();
+                                                                    emailMessage = emailMessage.replace("<Sem>",String.valueOf(sem));
+                                                                    emailMessage = emailMessage.replace("<Course Name>",courseName);
+                                                                    emailService.sendMail(emailMessage, emailTo, emailSubject);
                                                                     return "redirect:/faculty/announcement?upload=success";
 
                 case ApplicationConstants.ACTION_NOTES :            FileVO fileVO = new FileVO(null,courseMstrSeq,sem,subjectMstrSeq,fileName,"file://"+uploadDir+fileName);
                                                                     userService.saveFileVO(fileVO);
+                                                                    emailTemplate = userService.getEmailTemplate("FACULTY","NOTES_SUCCESS");
+                                                                    emailSubject=emailTemplate.get(0).get("TEMPLATE_SUBJECT").toString();
+                                                                    emailTo=userProfileCookieMap.get("EMAIL");
+                                                                    emailMessage = emailTemplate.get(0).get("TEMPLATE_BODY").toString();
+                                                                    emailMessage = emailMessage.replace("<Subject Name>",subjectName);
+                                                                    emailService.sendMail(emailMessage, emailTo, emailSubject);
                                                                     return "redirect:/faculty/files?upload=success";
 
                 case ApplicationConstants.ACTION_ASSIGNMENT :       Assignment assignmentVO = new Assignment(courseMstrSeq,sem,subjectMstrSeq,
                                                                                                                  Integer.valueOf(userProfileCookieMap.get(ApplicationConstants.FACULTY_MSTR_SEQ)),
                                                                                                                  assignmentName,marks,fileName,"file://"+uploadDir+fileName);
                                                                     userService.saveAssignment(assignmentVO);
+                                                                    emailTemplate = userService.getEmailTemplate("FACULTY","ASSIGNMENT_SUCCESS");
+                                                                    emailSubject=emailTemplate.get(0).get("TEMPLATE_SUBJECT").toString();
+                                                                    emailTo=userProfileCookieMap.get("EMAIL");
+                                                                    emailMessage=emailTemplate.get(0).get("TEMPLATE_BODY").toString();
+                                                                    emailMessage = emailMessage.replace("<Assignment Name>",assignmentName);
+                                                                    emailMessage = emailMessage.replace("<Total Marks>",String.valueOf(marks));
+                                                                    emailService.sendMail(emailMessage, emailTo, emailSubject);
                                                                     return "redirect:/faculty/assignment?upload=success";
                 default:        break;
             }
@@ -384,8 +412,19 @@ public class FacultyController {
                 if(upload.length()>0){
                     MessageVO messageVO = new MessageVO("Success","Assignment Uploaded Successfully");
                     model.addAttribute("MESSAGE",messageVO);
-                }else if(action.length()>0){
+                }else if(upload.length()>0 && upload.contains("failed")){
+                    MessageVO messageVO = new MessageVO("Failed","Assignment Upload Failed");
+                    model.addAttribute("MESSAGE",messageVO);
+                }
+
+                if(action.length()>0 && action.contains("success")){
                     MessageVO messageVO = new MessageVO("Success","Assignments Graded Successfully!");
+                    model.addAttribute("MESSAGE",messageVO);
+                }else if(action.length()>0 && action.contains("failed")){
+                    MessageVO messageVO = new MessageVO("Failed","Assignments Grading Failed!");
+                    model.addAttribute("MESSAGE",messageVO);
+                }else if(action.length()>0 && action.contains("fieldRequired")){
+                    MessageVO messageVO = new MessageVO("Alert","Enter Proper Values in Marks Field");
                     model.addAttribute("MESSAGE",messageVO);
                 }
                 return "assignment";
@@ -397,15 +436,25 @@ public class FacultyController {
     @RequestMapping("/gradeassignment")
     public String gradeAssignments(@ModelAttribute(name = "gradeVO")GradeVOList gradeVO){
         System.out.println(gradeVO);
+        boolean success = false;
         for (SubmittedFilesVO submittedFile: gradeVO.getSubmissionList()) {
-            if(submittedFile.getMarks()!=null){
+            if(submittedFile.getSubmissionMstrSeq()!=null && submittedFile.getMarks()!=null){
                 SubmittedFilesVO submittedFilesVO = userService.fetchSubmittedFilesBySeq(submittedFile.getSubmissionMstrSeq());
                 submittedFilesVO.setMarks(submittedFile.getMarks());
                 submittedFilesVO.setStatus("GRADED");
                 userService.saveSubmittedFilesVO(submittedFilesVO);
+                success = true;
+            }else{
+                success=false;
+                continue;
             }
         }
-        return "redirect:/faculty/assignment?action=gradesuccess";
+        if(success == true){
+            return "redirect:/faculty/assignment?action=gradesuccess";
+        }else{
+            return "redirect:/faculty/assignment?action=fieldRequired";
+        }
+
     }
 
     @RequestMapping("/announcement")

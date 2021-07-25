@@ -305,4 +305,13 @@ public class UserService implements IUserService {
         SubmittedFilesVO s = submittedFilesRepository.getOne(submissionMstrSeq);
         return s;
     }
+
+    @Override
+    public List<Map<String, Object>> getEmailTemplate(String templateType, String templateCd) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(JdbcConstants.TEMPLATE_TYPE,templateType);
+        map.addValue(JdbcConstants.TEMPLATE_CD, templateCd);
+        List<Map<String,Object>> emailTemplateList = namedParameterJdbcTemplate.queryForList(JdbcConstants.FETCH_EMAIL_TEMPLATE_BY_TEMP_CD_AND_TYPE,map);
+        return emailTemplateList;
+    }
 }

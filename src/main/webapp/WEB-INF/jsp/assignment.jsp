@@ -358,7 +358,7 @@
 
                 <%--FOR EACH SUBJECT--%>
                 <c:forEach items="${STUDENT_ASSIGNMENT_MODEL}" var="subjectList">
-                <div class="panel-heading" style="background-color: #333">
+                <div class="panel-heading" style="background-color: #333; margin-bottom: 10px;">
                     <h4 class="panel-title">
                         <a style="color: white" data-toggle="collapse" href="#collapseSubject${subjectList.subjectMstrSeq}">${subjectList.subject}</a>
                     </h4>
@@ -379,7 +379,7 @@
                                                         <a target="_blank" style="font-size: 14px" href="${assignmentList.path}">View Assignment</a>
                                                     </td>
                                                     <td>
-                                                        <button id="${subjectList.subjectMstrSeq}|${assignmentList.assignmentMstrSeq}" onclick="reply_click(this.id)" type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">Upload</button>
+                                                        <button id="${subjectList.subjectMstrSeq}|${assignmentList.assignmentMstrSeq}|${assignmentList.assignmentName}" onclick="reply_click(this.id)" type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">Upload</button>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -410,7 +410,6 @@
                         </ul>
                         <div class="panel-footer" style="background-color: black;"></div>
                     </div>
-                    <div class="panel-footer" style="background-color: white;"></div>
                 </c:forEach>
             </div>
         </div>
@@ -422,8 +421,10 @@
                     console.log(myArr);
                     var subjectMstrSeq = myArr[0];
                     var assignmentMstrSeq = myArr[1];
+                    var assignmentName = myArr[2];
                     document.getElementById("subject").value=subjectMstrSeq;
                     document.getElementById("assignmentSeq").value = assignmentMstrSeq;
+                    document.getElementById("assignmentName").value = assignmentName;
                 }
             </script>
 
@@ -446,6 +447,7 @@
                                         <td style="border: 0px">
                                             <input style="width: 100%; display: none;" type="text" id="subject" name="subject" readonly="true">
                                             <input style="width: 100%; display: none;" type="text" id="assignmentSeq" name="assignment" readonly="true">
+                                            <input style="width: 100%; display: none;" type="text" id="assignmentName" name="assignmentName" readonly="true">
                                         </td>
                                     </tr>
                                 </table>
@@ -549,7 +551,9 @@
                                                                             <tr>
                                                                                 <td><label><form:checkbox path="submissionList[${index.index}].submissionMstrSeq" value="${submissionList.submissionMstrSeq}"></form:checkbox> ${submissionList.userMstrSeq}</label></td>
                                                                                 <td>${submissionList.status}</td>
-                                                                                <td><form:input path="submissionList[${index.index}].marks" placeholder="${submissionList.marks}"></form:input> </td>
+                                                                                <td><form:input name="marks" path="submissionList[${index.index}].marks" placeholder="${submissionList.marks}"></form:input>
+                                                                                    <form:errors path="submissionList[${index.index}].marks"/>
+                                                                                </td>
                                                                                 <td>${submissionList.date}</td>
                                                                                 <td><a href="${submissionList.filePath}">View</a></td>
                                                                             </tr>
@@ -591,6 +595,14 @@
                     document.getElementById("facultySemSeq").value = sem;
                     document.getElementById("facultySubjectSeq").value = subjectSeq;
                     document.getElementById("facultySubject").value = subjectName;
+                }
+
+                function validateForm() {
+                    var x = document.forms["myForm"]["marks"].value;
+                    if (x == "") {
+                        alert("Marks must be filled out");
+                        return false;
+                    }
                 }
             </script>
 

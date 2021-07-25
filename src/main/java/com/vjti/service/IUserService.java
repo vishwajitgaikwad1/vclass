@@ -54,4 +54,6 @@ public interface IUserService {
     void saveAssignment(Assignment assignment);
 
     SubmittedFilesVO fetchSubmittedFilesBySeq(Integer submissionMstrSeq);
+
+    List<Map<String,Object>> getEmailTemplate(String templateType, String templateCd);
 }
